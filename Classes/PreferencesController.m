@@ -29,7 +29,7 @@
 //
 
 #import "PreferencesController.h"
-
+#ifndef TARGET_OS_IPHONE
 #import "AKNSWindow+Resizing.h"
 
 #import "AccountPreferencesViewController.h"
@@ -37,7 +37,7 @@
 #import "GeneralPreferencesViewController.h"
 #import "NetworkPreferencesViewController.h"
 #import "SoundPreferencesViewController.h"
-
+#endif
 
 NSString * const kAccounts = @"Accounts";
 NSString * const kSTUNServerHost = @"STUNServerHost";
@@ -94,7 +94,7 @@ NSString * const AKPreferencesControllerDidChangeAccountEnabledNotification
 NSString * const AKPreferencesControllerDidSwapAccountsNotification = @"AKPreferencesControllerDidSwapAccounts";
 NSString * const AKPreferencesControllerDidChangeNetworkSettingsNotification
     = @"AKPreferencesControllerDidChangeNetworkSettings";
-
+#ifndef TARGET_OS_IPHONE
 @implementation PreferencesController
 
 @synthesize generalPreferencesViewController = _generalPreferencesViewController;
@@ -279,3 +279,4 @@ NSString * const AKPreferencesControllerDidChangeNetworkSettingsNotification
 }
 
 @end
+#endif

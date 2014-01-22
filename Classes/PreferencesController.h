@@ -27,9 +27,9 @@
 //  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-
+#ifndef TARGET_OS_IPHONE
 #import <Cocoa/Cocoa.h>
-
+#endif
 
 // Preferences window toolbar items tags.
 enum {
@@ -107,7 +107,7 @@ extern NSString * const AKPreferencesControllerDidSwapAccountsNotification;
 //
 // Sent when preferences controller changes network settings.
 extern NSString * const AKPreferencesControllerDidChangeNetworkSettingsNotification;
-
+#ifndef TARGET_OS_IPHONE
 @class GeneralPreferencesViewController, AccountPreferencesViewController;
 @class SoundPreferencesViewController, NetworkPreferencesViewController;
 
@@ -143,3 +143,4 @@ extern NSString * const AKPreferencesControllerDidChangeNetworkSettingsNotificat
 - (IBAction)changeView:(id)sender;
 
 @end
+#endif
