@@ -27,9 +27,9 @@
 //  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-
+#ifndef TARGET_OS_IPHONE
 #import <Cocoa/Cocoa.h>
-
+#endif
 @class AKSIPURI;
 
 // Instances of AKSIPURIFormatter create string representations of AKSIPURI, and convert textual representations of SIP

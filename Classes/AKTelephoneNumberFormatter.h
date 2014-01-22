@@ -27,9 +27,9 @@
 //  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-
+#ifndef TARGET_OS_IPHONE
 #import <Cocoa/Cocoa.h>
-
+#endif
 
 // Instances of AKTelephoneNumberFormatter create formatted telephone numbers from strings of contiguous digits, and
 // convert strings with non-contiguous digits to strings that consist of contiguous digits only.
