@@ -27,9 +27,9 @@
 //  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-
+#ifndef TARGET_OS_IPHONE
 #import <Cocoa/Cocoa.h>
-
+#endif
 #import "AKSIPAccount.h"
 #import "XSWindowController.h"
 
@@ -47,10 +47,12 @@ extern NSString * const kEmailSIPLabel;
 @class AKSIPURI, AKNetworkReachability;
 @class ActiveAccountViewController, AuthenticationFailureController;
 @class CallTransferController;
-
+#ifndef TARGET_OS_IPHONE
 // A SIP account controller.
 @interface AccountController : XSWindowController <AKSIPAccountDelegate>
-
+#else
+@interface AccountController : NSObject
+#endif
 // A Boolean value indicating whether receiver is enabled.
 @property (nonatomic, assign, getter=isEnabled) BOOL enabled;
 

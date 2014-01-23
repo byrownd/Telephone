@@ -27,15 +27,15 @@
 //  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-
+#ifndef TARGET_OS_IPHONE
 #import <Cocoa/Cocoa.h>
-
+#endif
 
 // Sent when account setup controller adds an account.
 // |userInfo| object contains dictionary with the account data (see the account keys defined in
 // PreferencesController.h).
 extern NSString * const AKAccountSetupControllerDidAddAccountNotification;
-
+#ifndef TARGET_OS_IPHONE
 // A class to manage account setup.
 @interface AccountSetupController : NSWindowController
 
@@ -58,3 +58,4 @@ extern NSString * const AKAccountSetupControllerDidAddAccountNotification;
 - (IBAction)addAccount:(id)sender;
 
 @end
+#endif

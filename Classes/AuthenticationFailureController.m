@@ -29,17 +29,17 @@
 //
 
 #import "AuthenticationFailureController.h"
-
+#ifndef TARGET_OS_IPHONE
 #import "AKSIPUserAgent.h"
 #import "AKKeychain.h"
 
 #import "AccountController.h"
 #import "AppController.h"
-
+#endif
 
 NSString * const AKAuthenticationFailureControllerDidChangeUsernameAndPasswordNotification
     = @"AKAuthenticationFailureControllerDidChangeUsernameAndPassword";
-
+#ifndef TARGET_OS_IPHONE
 @implementation AuthenticationFailureController
 
 - (id)initWithAccountController:(AccountController *)anAccountController {
@@ -138,3 +138,4 @@ NSString * const AKAuthenticationFailureControllerDidChangeUsernameAndPasswordNo
 }
 
 @end
+#endif

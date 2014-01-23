@@ -27,9 +27,9 @@
 //  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-
+#ifndef TARGET_OS_IPHONE
 #import <Cocoa/Cocoa.h>
-
+#endif
 #import "AKSIPUserAgent.h"
 
 
@@ -84,10 +84,10 @@ extern NSString * const kGrowlNotificationCallEnded;
 // A Boolean value indicating whether user agent sound IO should be set as soon
 // as needed, e.g. on the next call.
 @property (nonatomic, assign) BOOL shouldSetUserAgentSoundIO;
-
+#ifndef TARGET_OS_IPHONE
 // Incoming call ringtone.
 @property (nonatomic, strong) NSSound *ringtone;
-
+#endif
 // Ringtone timer.
 @property (nonatomic, strong) NSTimer *ringtoneTimer;
 
@@ -124,13 +124,13 @@ extern NSString * const kGrowlNotificationCallEnded;
 
 // Accounts menu items to show in windows menu.
 @property (nonatomic, strong) NSArray *accountsMenuItems;
-
+#ifndef TARGET_OS_IPHONE
 // Application Window menu.
 @property (nonatomic, weak) IBOutlet NSMenu *windowMenu;
 
 // Preferences menu item outlet.
 @property (nonatomic, weak) IBOutlet NSMenuItem *preferencesMenuItem;
-
+#endif
 // Stops and destroys SIP user agent hanging up all calls and unregistering all accounts.
 - (void)stopUserAgent;
 
