@@ -27,18 +27,18 @@
 //  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-
+#ifndef TARGET_OS_IPHONE
 #import <Cocoa/Cocoa.h>
 
 #import "XSWindowController.h"
-
+#endif
 
 // Notifications.
 //
 // Sent when call window is about to be closed.
 // |accountController| will be subscribed to this notification in its setter.
 extern NSString * const AKCallWindowWillCloseNotification;
-
+#ifndef TARGET_OS_IPHONE
 @class AccountController, AKSIPCall, AKResponsiveProgressIndicator, AKSIPURI;
 @class IncomingCallViewController, ActiveCallViewController;
 @class EndedCallViewController, CallTransferController;
@@ -138,3 +138,4 @@ extern NSString * const AKCallWindowWillCloseNotification;
 - (void)intermediateStatusTimerTick:(NSTimer *)theTimer;
 
 @end
+#endif

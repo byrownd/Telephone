@@ -30,15 +30,22 @@
 
 #import "AccountController.h"
 
+#ifndef TARGET_OS_IPHONE
 #import <AddressBook/AddressBook.h>
 #import <Growl/Growl.h>
 
 #import "AKABAddressBook+Localizing.h"
 #import "AKABRecord+Querying.h"
 #import "AKKeychain.h"
+#endif
+
 #import "AKNetworkReachability.h"
 #import "AKNSString+Scanning.h"
+
+#ifndef TARGET_OS_IPHONE
 #import "AKNSWindow+Resizing.h"
+#endif
+
 #import "AKSIPAccount.h"
 #import "AKSIPCall.h"
 #import "AKSIPURI.h"
@@ -46,16 +53,27 @@
 #import "AKSIPUserAgent.h"
 #import "AKTelephoneNumberFormatter.h"
 
+#ifndef TARGET_OS_IPHONE
 #import "ActiveAccountViewController.h"
 #import "ActiveCallViewController.h"
+#endif
+
 #import "AppController.h"
 #import "AuthenticationFailureController.h"
+
+#ifndef TARGET_OS_IPHONE
 #import "CallController.h"
 #import "CallTransferController.h"
 #import "EndedCallViewController.h"
 #import "IncomingCallViewController.h"
+
+#endif
+
 #import "PreferencesController.h"
 
+#ifdef TARGET_OS_IPHONE
+#import "SipManager.h"
+#endif
 
 // Account state pop-up button widths.
 //
@@ -91,10 +109,10 @@ NSString * const kEmailSIPLabel = @"sip";
 @end
 
 @implementation AccountController
-
+#ifndef TARGET_OS_IPHONE
 @synthesize activeAccountViewController = _activeAccountViewController;
 @synthesize authenticationFailureController = _authenticationFailureController;
-
+#endif
 - (void)setEnabled:(BOOL)flag {
     _enabled = flag;
     
@@ -141,18 +159,27 @@ NSString * const kEmailSIPLabel = @"sip";
     } else {
         NSString *serviceName = [NSString stringWithFormat:@"SIP: %@",
                                  [[self account] registrar]];
+#ifndef TARGET_OS_IPHONE
         NSString *password = [AKKeychain passwordForServiceName:serviceName accountName:[[self account] username]];
-        
+#else
+        NSString *password = nil; // FIXIT
+#endif
         [self showConnectingState];
-        
+#ifndef TARGET_OS_IPHONE
         BOOL accountAdded = [[[NSApp delegate] userAgent] addAccount:[self account] withPassword:password];
+#else
+        BOOL accountAdded = [[[SipManager sharedManager].sipController userAgent] addAccount:[self account] withPassword:password];
+#endif
         
         // Error connecting to registrar.
         if (accountAdded &&
             ![self isAccountRegistered] &&
             [[self account] registrationExpireTime] < 0 &&
+#ifndef TARGET_OS_IPHONE
             [[[NSApp delegate] userAgent] isStarted]) {
-            
+#else
+            [[[SipManager sharedManager].sipController userAgent] isStarted]) {
+#endif
             [self showUnavailableState];
             
             // Schedule account automatic re-registration timer.
@@ -171,8 +198,13 @@ NSString * const kEmailSIPLabel = @"sip";
                 NSString *statusText;
                 NSString *preferredLocalization = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
                 if ([preferredLocalization isEqualToString:@"Russian"]) {
+#ifndef TARGET_OS_IPHONE
                     statusText = [[NSApp delegate] localizedStringForSIPResponseCode:
                                   [[self account] registrationStatus]];
+#else
+                    statusText = [[SipManager sharedManager].sipController localizedStringForSIPResponseCode:
+                                  [[self account] registrationStatus]];
+#endif
                 } else {
                     statusText = [[self account] registrationStatusText];
                 }
@@ -199,11 +231,13 @@ NSString * const kEmailSIPLabel = @"sip";
 
 - (void)setAccountDescription:(NSString *)accountDescription {
     if (_accountDescription != accountDescription) {
+#ifndef TARGET_OS_IPHONE
         [[self window] setTitle:accountDescription];
+#endif
         _accountDescription = accountDescription;
     }
 }
-
+#ifndef TARGET_OS_IPHONE
 - (ActiveAccountViewController *)activeAccountViewController {
     if (_activeAccountViewController == nil) {
         _activeAccountViewController = [[ActiveAccountViewController alloc] initWithAccountController:self
@@ -220,9 +254,13 @@ NSString * const kEmailSIPLabel = @"sip";
     
     return _authenticationFailureController;
 }
-
+#endif
 - (id)initWithSIPAccount:(AKSIPAccount *)anAccount {
+#ifndef TARGET_OS_IPHONE
     self = [super initWithWindowNibName:@"Account"];
+#else
+    self = [super init];
+#endif
     if (self == nil) {
         return nil;
     }
@@ -238,9 +276,9 @@ NSString * const kEmailSIPLabel = @"sip";
     [self setShouldMakeCall:NO];
     
     [[self account] setDelegate:self];
-    
+#ifndef TARGET_OS_IPHONE
     [[self window] setTitle:[[self account] SIPAddress]];
-    
+#endif
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(SIPUserAgentDidFinishStarting:)
                                                  name:AKSIPUserAgentDidFinishStartingNotification
@@ -250,18 +288,20 @@ NSString * const kEmailSIPLabel = @"sip";
 }
 
 - (void)dealloc {
+#ifndef TARGET_OS_IPHONE
     for (CallController *aCallController in [self callControllers]) {
         [aCallController close];
     }
-    
+#endif
     if ([[[self account] delegate] isEqual:self]) {
         [[self account] setDelegate:nil];
     }
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    
+#ifndef TARGET_OS_IPHONE
     // Close authentication failure sheet if it's raised.
     [[_authenticationFailureController cancelButton] performClick:nil];
+#endif
 }
 
 - (NSString *)description {
@@ -269,8 +309,10 @@ NSString * const kEmailSIPLabel = @"sip";
 }
 
 - (void)awakeFromNib {
+#ifndef TARGET_OS_IPHONE
     [self setShouldCascadeWindows:NO];
     [[self window] setFrameAutosaveName:[[self account] SIPAddress]];
+#endif
 }
 
 - (void)removeAccountFromUserAgent {
@@ -282,7 +324,11 @@ NSString * const kEmailSIPLabel = @"sip";
     }
     
     [self showOfflineState];
+#ifndef TARGET_OS_IPHONE
     [[[NSApp delegate] userAgent] removeAccount:[self account]];
+#else
+    [[[SipManager sharedManager].sipController userAgent] removeAccount:[self account]];
+#endif
 }
 
 - (void)makeCallToURI:(AKSIPURI *)destinationURI
@@ -311,9 +357,9 @@ NSString * const kEmailSIPLabel = @"sip";
                                         stringByReplacingCharactersInRange:NSMakeRange(0, 1)
                                                                 withString:[self plusCharacterSubstitution]];
     }
-    
+#ifndef TARGET_OS_IPHONE
     // If it's a regular call, not a transfer, create the new CallController.
-    CallController *aCallController;
+    CallController *aCallController; //FIXIT
     if (callTransferController == nil) {
         aCallController = [[CallController alloc] initWithWindowNibName:@"Call" accountController:self];
     } else {
@@ -324,7 +370,7 @@ NSString * const kEmailSIPLabel = @"sip";
     [aCallController setPhoneLabelFromAddressBook:phoneLabel];
     [aCallController setEnteredCallDestination:enteredCallDestinationString];
     [[self callControllers] addObject:aCallController];
-    
+
     // Set title.
     if ([[destinationURI host] length] > 0) {
         [[aCallController window] setTitle:[destinationURI SIPAddress]];
@@ -401,6 +447,7 @@ NSString * const kEmailSIPLabel = @"sip";
         [aCallController setCallInfoViewResizingWindow:[[aCallController endedCallViewController] view]];
         [aCallController setStatus:NSLocalizedString(@"Call Failed", @"Call failed.")];
     }
+#endif
 }
 
 - (void)makeCallToURI:(AKSIPURI *)destinationURI phoneLabel:(NSString *)phoneLabel {
@@ -437,6 +484,7 @@ NSString * const kEmailSIPLabel = @"sip";
 }
 
 - (void)showRegistrarConnectionErrorSheetWithError:(NSString *)error {
+#ifndef TARGET_OS_IPHONE
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"OK"];
     [alert setMessageText:[NSString stringWithFormat:
@@ -454,10 +502,12 @@ NSString * const kEmailSIPLabel = @"sip";
     }
     
     [alert beginSheetModalForWindow:[self window] modalDelegate:nil didEndSelector:NULL contextInfo:NULL];
+#endif
 }
 
 
 - (void)showAvailableState {
+#ifndef TARGET_OS_IPHONE
     NSSize buttonSize = [[self accountStatePopUp] frame].size;
     
     NSString *preferredLocalization = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
@@ -484,9 +534,11 @@ NSString * const kEmailSIPLabel = @"sip";
             [[self window] makeFirstResponder:[[self activeAccountViewController] callDestinationField]];
         }
     }
+#endif
 }
 
 - (void)showUnavailableState {
+#ifndef TARGET_OS_IPHONE
     NSSize buttonSize = [[self accountStatePopUp] frame].size;
     
     NSString *preferredLocalization = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
@@ -514,9 +566,11 @@ NSString * const kEmailSIPLabel = @"sip";
             [[self window] makeFirstResponder:[[self activeAccountViewController] callDestinationField]];
         }
     }
+#endif
 }
 
 - (void)showOfflineState {
+#ifndef TARGET_OS_IPHONE
     NSSize buttonSize = [[self accountStatePopUp] frame].size;
     
     NSString *preferredLocalization = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
@@ -541,9 +595,11 @@ NSString * const kEmailSIPLabel = @"sip";
     NSUInteger autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
     [emptyView setAutoresizingMask:autoresizingMask];
     [[self window] setContentView:emptyView];
+#endif
 }
 
 - (void)showConnectingState {
+#ifndef TARGET_OS_IPHONE
     NSSize buttonSize = [[self accountStatePopUp] frame].size;
     
     NSString *preferredLocalization = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
@@ -559,6 +615,7 @@ NSString * const kEmailSIPLabel = @"sip";
     [[self accountStatePopUp] setFrameSize:buttonSize];
     [[self accountStatePopUp] setTitle:
      NSLocalizedString(@"Connecting...", @"Account registration Connecting... menu item.")];
+#endif
 }
 
 - (void)reRegistrationTimerTick:(NSTimer *)theTimer {
@@ -573,19 +630,20 @@ NSString * const kEmailSIPLabel = @"sip";
     if ([[uri user] length] == 0) {
         return;
     }
-    
+#ifndef TARGET_OS_IPHONE
     [[[self activeAccountViewController] callDestinationField] setTokenStyle:NSPlainTextTokenStyle];
-    
+#endif
     NSString *theString;
     if ([[uri host] length] > 0) {
         theString = [uri SIPAddress];
     } else {
         theString = [uri user];
     }
-    
+#ifndef TARGET_OS_IPHONE //FIXIT
     [[[self activeAccountViewController] callDestinationField] setStringValue:theString];
     
     [[self activeAccountViewController] makeCall:nil];
+#endif
 }
 
 
@@ -598,12 +656,12 @@ NSString * const kEmailSIPLabel = @"sip";
 
 - (BOOL)windowShouldClose:(id)sender {
     BOOL result = YES;
-    
+#ifndef TARGET_OS_IPHONE
     if (sender == [self window]) {
         [[self window] orderOut:self];
         result = NO;
     }
-    
+#endif
     return result;
 }
 
@@ -637,17 +695,22 @@ NSString * const kEmailSIPLabel = @"sip";
             
             // The user could initiate a call from the Address Book plug-in.
             if ([self shouldMakeCall]) {
+#ifndef TARGET_OS_IPHONE
                 // Explicitly display registered mode before calling.
                 [[self window] display];
-                
+#endif
                 [self setShouldMakeCall:NO];
+#ifndef TARGET_OS_IPHONE
                 [[self activeAccountViewController] makeCall:nil];
+#endif
             }
             
             // The user could click a URL.
             if ([self catchedURLString] != nil) {
+#ifndef TARGET_OS_IPHONE
                 // Explicitly display registered mode before calling.
                 [[self window] display];
+#endif
                 
                 [self handleCatchedURL];
             }
@@ -658,6 +721,7 @@ NSString * const kEmailSIPLabel = @"sip";
         
         // Handle authentication failure
         if ([[self account] registrationStatus] == PJSIP_EFAILEDCREDENTIAL) {
+#ifndef TARGET_OS_IPHONE
             [[[self authenticationFailureController] informativeText] setStringValue:
              [NSString stringWithFormat:
               NSLocalizedString(@"Telephone was unable to login to %@. "
@@ -677,20 +741,29 @@ NSString * const kEmailSIPLabel = @"sip";
                 modalDelegate:nil
                didEndSelector:NULL
                   contextInfo:NULL];
+#endif
             
         } else if (([[self account] registrationStatus] / 100 != 2) &&
                    ([[self account] registrationExpireTime] < 0)) {
             // Raise a sheet if connection to the registrar failed. If last registration status is 2xx and expiration
             // interval is less than zero, it is unregistration, not failure. Condition of failure is: last registration
             // status != 2xx AND expiration interval < 0.
-            
+#ifndef TARGET_OS_IPHONE
             if ([[[NSApp delegate] userAgent] isStarted]) {
+#else
+            if ([[[SipManager sharedManager].sipController userAgent] isStarted]) {
+#endif
                 if ([self shouldPresentRegistrationError]) {
                     NSString *statusText;
                     NSString *preferredLocalization = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
                     if ([preferredLocalization isEqualToString:@"Russian"]) {
+#ifndef TARGET_OS_IPHONE
                         statusText = [[NSApp delegate] localizedStringForSIPResponseCode:
                                       [[self account] registrationStatus]];
+#else
+                        statusText = [[SipManager sharedManager].sipController localizedStringForSIPResponseCode:
+                                      [[self account] registrationStatus]];
+#endif
                     } else {
                         statusText = [[self account] registrationStatusText];
                     }
@@ -759,6 +832,7 @@ NSString * const kEmailSIPLabel = @"sip";
         
     } else if (![[NSUserDefaults standardUserDefaults] boolForKey:kCallWaiting]) {
         // Reply with 486 Busy Here if needed.
+#ifndef TARGET_OS_IPHONE //FIXIT
         for (CallController *callController in [self callControllers]) {
             if ([callController isCallActive]) {
                 [aCall replyWithBusyHere];
@@ -766,8 +840,9 @@ NSString * const kEmailSIPLabel = @"sip";
                 return;
             }
         }
+#endif
     }
-    
+#ifndef TARGET_OS_IPHONE
     [[NSApp delegate] pauseITunes];
     
     CallController *aCallController = [[CallController alloc] initWithWindowNibName:@"Call" accountController:self];
@@ -776,7 +851,7 @@ NSString * const kEmailSIPLabel = @"sip";
     [aCallController setCallActive:YES];
     [aCallController setCallUnhandled:YES];
     [[self callControllers] addObject:aCallController];
-    
+#endif
     AKSIPURIFormatter *SIPURIFormatter = [[AKSIPURIFormatter alloc] init];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [SIPURIFormatter setFormatsTelephoneNumbers:[defaults boolForKey:kFormatTelephoneNumbers]];
@@ -793,7 +868,7 @@ NSString * const kEmailSIPLabel = @"sip";
     AKSIPURI *finalRedialURI = [aCall remoteURI];
     
     // Search Address Book for caller's name.
-    
+#ifndef TARGET_OS_IPHONE
     ABAddressBook *AB = [ABAddressBook sharedAddressBook];
     NSArray *records = nil;
     
@@ -1018,13 +1093,14 @@ NSString * const kEmailSIPLabel = @"sip";
                                  "Deliberately in lower case, translators should do "
                                  "the same, if possible.");
     }
-    
+#endif
+#ifndef TARGET_OS_IPHONE
     NSUserNotification *userNotification = [[NSUserNotification alloc] init];
     userNotification.title = notificationTitle;
     userNotification.informativeText = notificationDescription;
     userNotification.userInfo = @{kUserNotificationCallControllerIdentifierKey: aCallController.identifier};
     [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:userNotification];
-    
+
     if ([defaults boolForKey:kShowGrowlNotifications]) {
         [GrowlApplicationBridge notifyWithTitle:notificationTitle
                                     description:notificationDescription
@@ -1042,7 +1118,7 @@ NSString * const kEmailSIPLabel = @"sip";
         [NSApp requestUserAttention:NSInformationalRequest];
         [[NSApp delegate] startUserAttentionTimer];
     }
-    
+#endif
     [aCall sendRingingNotification];
 }
 

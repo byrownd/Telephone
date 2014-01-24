@@ -29,7 +29,7 @@
 //
 
 #import "CallController.h"
-
+#ifndef TARGET_OS_IPHONE
 #import <Growl/Growl.h>
 
 #import "AKActiveCallView.h"
@@ -50,7 +50,7 @@
 #import "EndedCallViewController.h"
 #import "IncomingCallViewController.h"
 #import "PreferencesController.h"
-
+#endif
 
 NSString * const AKCallWindowWillCloseNotification = @"AKCallWindowWillClose";
 
@@ -59,7 +59,7 @@ static const NSTimeInterval kCallWindowAutoCloseTime = 1.5;
 
 // Redial button re-enable delay.
 static const NSTimeInterval kRedialButtonReenableTime = 1.0;
-
+#ifndef TARGET_OS_IPHONE
 @interface CallController ()
 
 // Account description field.
@@ -708,3 +708,4 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
 }
 
 @end
+#endif

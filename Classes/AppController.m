@@ -59,6 +59,8 @@
 #import "PreferencesController.h"
 #import "AccountSetupController.h"
 #import "AuthenticationFailureController.h"
+#import "AccountController.h"
+#import "CallController.h"
 #endif
 
 NSString * const kAudioDeviceIdentifier = @"AudioDeviceIdentifier";
@@ -1337,9 +1339,9 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         account.updatesViaHeader = [accountDict[kUpdateViaHeader] boolValue];
         
         AccountController *theAccountController = [[AccountController alloc] initWithSIPAccount:account];
-        
+#ifndef TARGET_OS_IPHONE
         [[theAccountController window] setExcludedFromWindowsMenu:YES];
-        
+#endif
         NSString *description = [accountDict objectForKey:kDescription];
         if ([description length] == 0) {
             description = SIPAddress;
@@ -1353,9 +1355,9 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         [theAccountController setPlusCharacterSubstitution:[accountDict objectForKey:kPlusCharacterSubstitutionString]];
         
         [[self accountControllers] replaceObjectAtIndex:index withObject:theAccountController];
-        
+#ifndef TARGET_OS_IPHONE
         [[theAccountController window] orderFront:nil];
-        
+#endif
         // We need to register accounts with IP address as registrar manually.
         if ([[[theAccountController account] registrar] ak_isIPAddress] &&
             [[theAccountController registrarReachability] isReachable]) {
@@ -1376,10 +1378,12 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         [theAccountController setAttemptingToRegisterAccount:NO];
         [theAccountController setAttemptingToUnregisterAccount:NO];
         [theAccountController setShouldPresentRegistrationError:NO];
+#ifndef TARGET_OS_IPHONE
         [[theAccountController window] orderOut:nil];
         
         // Prevent conflict with setFrameAutosaveName: when re-enabling the account.
         [theAccountController setWindow:nil];
+#endif
     }
     
     [self updateCallsShouldDisplayAccountInfo];
@@ -1487,7 +1491,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
                 }
             }
         }
-        
+#ifndef TARGET_OS_IPHONE
         if ([self shouldPresentUserAgentLaunchError] && [NSApp modalWindow] == nil) {
             // Display application modal alert.
             NSAlert *alert = [[NSAlert alloc] init];
@@ -1499,12 +1503,14 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
                                @"SIP user agent start error informative text.")];
             [alert runModal]; 
         }
+#endif
     }
     
     [self setShouldPresentUserAgentLaunchError:NO];
 }
 
 - (void)SIPUserAgentDidFinishStopping:(NSNotification *)notification {
+#ifndef TARGET_OS_IPHONE
     if ([self isTerminating]) {
         [NSApp replyToApplicationShouldTerminate:YES];
         
@@ -1515,9 +1521,11 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
             [self setShouldRegisterAllAccounts:NO];
         }
     }
+#endif
 }
 
 - (void)SIPUserAgentDidDetectNAT:(NSNotification *)notification {
+#ifndef TARGET_OS_IPHONE
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"OK"];
     
@@ -1556,6 +1564,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         default:
             break;
     }
+#endif
 }
 
 
@@ -1563,6 +1572,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 #pragma mark NSWindow notifications
 
 - (void)windowWillClose:(NSNotification *)notification {
+#ifndef TARGET_OS_IPHONE
     // User closed Account Setup window. Terminate application.
     if ([[notification object] isEqual:[[self accountSetupController] window]]) {
         [[NSNotificationCenter defaultCenter] removeObserver:self
@@ -1571,6 +1581,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         
         [NSApp terminate:self];
     }
+#endif
 }
 
 
@@ -1613,17 +1624,19 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
     [[self userAgent] setTransportPort:[defaults integerForKey:kTransportPort]];
     [[self userAgent] setTransportPublicHost:[defaults stringForKey:kTransportPublicHost]];
     [[self userAgent] setUsesG711Only:[defaults boolForKey:kUseG711Only]];
+#ifndef TARGET_OS_IPHONE
     [self setRingtone:[NSSound soundNamed:[defaults stringForKey:kRingingSound]]];
-    
+#endif
     
     NSArray *savedAccounts = [defaults arrayForKey:kAccounts];
     
     // Setup an account on first launch.
     if ([savedAccounts count] == 0) {
         // There are no saved accounts, prompt user to add one.
-        
+#ifndef TARGET_OS_IPHONE
         // Disable Preferences during the first account prompt.
         [[self preferencesMenuItem] setAction:NULL];
+
         
         // Subscribe to addAccountWindow close to terminate application.
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -1639,7 +1652,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         
         [[[self accountSetupController] window] center];
         [[[self accountSetupController] window] makeKeyAndOrderFront:self];
-        
+#endif
         // Early return.
         return;
     }
@@ -1683,9 +1696,9 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         account.updatesViaHeader = [accountDict[kUpdateViaHeader] boolValue];
         
         AccountController *anAccountController = [[AccountController alloc] initWithSIPAccount:account];
-        
+#ifndef TARGET_OS_IPHONE
         [[anAccountController window] setExcludedFromWindowsMenu:YES];
-        
+#endif
         NSString *description = [accountDict objectForKey:kDescription];
         if ([description length] == 0) {
             description = SIPAddress;
@@ -1700,22 +1713,23 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         [[self accountControllers] addObject:anAccountController];
         
         if (![anAccountController isEnabled]) {
+#ifndef TARGET_OS_IPHONE
             // Prevent conflict with |setFrameAutosaveName:| when enabling the account.
             [anAccountController setWindow:nil];
-            
+#endif
             continue;
         }
-        
+#ifndef TARGET_OS_IPHONE
         if (i == 0) {
             [[anAccountController window] makeKeyAndOrderFront:self];
-            
         } else {
             NSWindow *previousAccountWindow = [[[self accountControllers] objectAtIndex:(i - 1)] window];
             
             [[anAccountController window] orderWindow:NSWindowBelow relativeTo:[previousAccountWindow windowNumber]];
         }
+#endif
     }
-    
+#ifndef TARGET_OS_IPHONE
     // Update callsShouldDisplayAccountInfo on account controllers.
     [self updateCallsShouldDisplayAccountInfo];
     
@@ -1735,13 +1749,13 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
     [NSUserNotificationCenter defaultUserNotificationCenter].delegate = self;
     [GrowlApplicationBridge setGrowlDelegate:self];
     [self installDNSChangesCallback];
-    
+#endif
     [self setShouldPresentUserAgentLaunchError:YES];
-    
+#ifndef TARGET_OS_IPHONE
     // Register as service provider to allow making calls from the Services
     // menu and context menus.
     [NSApp setServicesProvider:self];
-    
+#endif
     // Accounts with host name as the registrar will be registered with the
     // reachability callbacks. But if registrar is IP address, there won't be such
     // callbacks. Register such accounts here.
@@ -1866,6 +1880,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 #pragma mark AuthenticationFailureController notifications
 
 - (void)authenticationFailureControllerDidChangeUsernameAndPassword:(NSNotification *)notification {
+#ifndef TARGET_OS_IPHONE
     AccountController *accountController = [[notification object] accountController];
     NSUInteger index = [[self accountControllers] indexOfObject:accountController];
     
@@ -1889,6 +1904,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
             [accountPreferencesViewController populateFieldsForAccountAtIndex:index];
         }
     }
+#endif
 }
 
 #pragma mark - NSUserNotificationCenterDelegate
@@ -1913,10 +1929,12 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 #pragma mark -
 #pragma mark GrowlApplicationBridgeDelegate protocol
 
+#ifndef TARGET_OS_IPHONE
 - (void)growlNotificationWasClicked:(id)clickContext {
     NSString *identifier = (NSString *)clickContext;
     [self showWindowOfCallControllerWithIdentifier:identifier];
 }
+#endif
 
 - (BOOL)hasNetworkClientEntitlement {
     return YES;
@@ -2060,10 +2078,10 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         [[firstEnabledAccountController activeAccountViewController] makeCall:nil];
     }
 }
-
+#endif
 @end
 
-
+#ifndef TARGET_OS_IPHONE
 #pragma mark -
 
 static OSStatus AudioDevicesChanged(AudioObjectID objectID,
@@ -2111,6 +2129,7 @@ static OSStatus GetAudioDevices(Ptr *devices, UInt16 *deviceCount) {
 }
 #endif
 static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, void *info) {
+#ifndef TARGET_OS_IPHONE //FIXIT
     id appDelegate = [NSApp delegate];
     NSArray *nameservers = [appDelegate currentNameservers];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -2135,4 +2154,5 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
             [appDelegate setShouldRestartUserAgentASAP:YES];
         }
     }
+#endif
 }

@@ -31,8 +31,9 @@
 #import <Cocoa/Cocoa.h>
 #endif
 #import "AKSIPAccount.h"
+#ifndef TARGET_OS_IPHONE
 #import "XSWindowController.h"
-
+#endif
 
 // Account states.
 enum {
@@ -45,7 +46,11 @@ enum {
 extern NSString * const kEmailSIPLabel;
 
 @class AKSIPURI, AKNetworkReachability;
+#ifndef TARGET_OS_IPHONE
 @class ActiveAccountViewController, AuthenticationFailureController;
+#else
+@class AuthenticationFailureController;
+#endif
 @class CallTransferController;
 #ifndef TARGET_OS_IPHONE
 // A SIP account controller.
@@ -97,7 +102,7 @@ extern NSString * const kEmailSIPLabel;
 
 // A replacement for the plus character in the phone number.
 @property (nonatomic, copy) NSString *plusCharacterSubstitution;
-
+#ifndef TARGET_OS_IPHONE
 // An active account view controller.
 @property (nonatomic, readonly) ActiveAccountViewController *activeAccountViewController;
 
@@ -106,7 +111,7 @@ extern NSString * const kEmailSIPLabel;
 
 // Account state pop-up button outlet.
 @property (nonatomic, weak) IBOutlet NSPopUpButton *accountStatePopUp;
-
+#endif
 // A Boolean value indicating if call windows should display account name.
 @property (nonatomic, assign) BOOL callsShouldDisplayAccountInfo;
 
