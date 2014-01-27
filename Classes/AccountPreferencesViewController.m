@@ -30,6 +30,9 @@
 
 #import "AccountPreferencesViewController.h"
 
+#ifdef TARGET_OS_IPHONE
+NSUInteger const kAccountsMax = 32;
+#else
 #import "AKKeychain.h"
 
 #import "AccountSetupController.h"
@@ -720,3 +723,4 @@ static const NSUInteger kAccountsMax = 32;
 }
 
 @end
+#endif

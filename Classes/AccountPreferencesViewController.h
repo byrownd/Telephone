@@ -27,10 +27,13 @@
 //  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-
+#ifndef TARGET_OS_IPHONE
 #import <Cocoa/Cocoa.h>
+#endif
 
-
+#ifdef TARGET_OS_IPHONE
+extern NSUInteger const kAccountsMax;
+#else
 @class PreferencesController, AccountSetupController;
 
 // A view controller to manage account preferences.
@@ -84,3 +87,4 @@
 - (IBAction)changeUseProxy:(id)sender;
 
 @end
+#endif
