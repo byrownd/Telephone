@@ -192,4 +192,9 @@ extern NSString * const kGrowlNotificationCallEnded;
 // Returns a localized string describing a given SIP response code.
 - (NSString *)localizedStringForSIPResponseCode:(NSInteger)responseCode;
 
+#ifdef TARGET_OS_IPHONE
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification;
+- (void)applicationDidBecomeActive:(NSNotification *)aNotification;
+#endif
+
 @end

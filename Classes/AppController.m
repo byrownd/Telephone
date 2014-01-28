@@ -1259,19 +1259,21 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
                                                        registrar:accountDict[kDomain]
                                                            realm:accountDict[kRealm]
                                                         username:accountDict[kUsername]];
-#ifndef TARGET_OS_IPHONE
+
     AccountController *theAccountController = [[AccountController alloc] initWithSIPAccount:account];
     
     [theAccountController setAccountDescription:[[theAccountController account] SIPAddress]];
+#ifndef TARGET_OS_IPHONE
     [[theAccountController window] setExcludedFromWindowsMenu:YES];
+#endif
     [theAccountController setEnabled:YES];
     
     [[self accountControllers] addObject:theAccountController];
     [self updateCallsShouldDisplayAccountInfo];
     [self updateAccountsMenuItems];
-    
+#ifndef TARGET_OS_IPHONE
     [[theAccountController window] orderFront:self];
-    
+#endif
     // We need to register accounts with IP address as registrar manually.
     if ([[[theAccountController account] registrar] ak_isIPAddress] &&
         [[theAccountController registrarReachability] isReachable]) {
@@ -1279,7 +1281,6 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         [theAccountController setAttemptingToRegisterAccount:YES];
         [theAccountController setAccountRegistered:YES];
     }
-#endif
 }
 
 
@@ -1288,13 +1289,13 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 
 - (void)preferencesControllerDidRemoveAccount:(NSNotification *)notification {
     NSInteger index = [[[notification userInfo] objectForKey:kAccountIndex] integerValue];
-#ifndef TARGET_OS_IPHONE
+
     AccountController *anAccountController = [[self accountControllers] objectAtIndex:index];
     
     if ([anAccountController isEnabled]) {
         [anAccountController removeAccountFromUserAgent];
     }
-#endif
+
     [[self accountControllers] removeObjectAtIndex:index];
     [self updateCallsShouldDisplayAccountInfo];
     [self updateAccountsMenuItems];
