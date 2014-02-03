@@ -97,6 +97,11 @@ static const CGFloat kAccountStatePopUpConnectingGermanWidth = 88.0;
 
 NSString * const kEmailSIPLabel = @"sip";
 
+#ifdef SIP_OBJC
+NSString * const kAccountSIPAvailable = @"AccountSIPAvailable";
+NSString * const kAccountSIPUnavailable = @"AccountSIPUnvailable";
+NSString * const kAccountSIPOffline = @"AccountSIPOffline";
+#endif
 
 @interface AccountController ()
 
@@ -163,6 +168,10 @@ NSString * const kEmailSIPLabel = @"sip";
         NSString *password = [AKKeychain passwordForServiceName:serviceName accountName:[[self account] username]];
 #else
         NSString *password = nil; // FIXIT
+#ifdef SIP_OBJC
+        NSString *sipName = [NSString stringWithFormat:@"%@@%@", self.account.username, self.account.registrar];
+        password = [[NSUserDefaults standardUserDefaults] objectForKey:sipName];
+#endif
 #endif
         [self showConnectingState];
 #ifndef TARGET_OS_IPHONE
@@ -507,6 +516,9 @@ NSString * const kEmailSIPLabel = @"sip";
 
 
 - (void)showAvailableState {
+#ifdef SIP_OBJC
+    [[NSNotificationCenter defaultCenter] postNotificationName:kAccountSIPAvailable object:self];
+#endif
 #ifndef TARGET_OS_IPHONE
     NSSize buttonSize = [[self accountStatePopUp] frame].size;
     
@@ -538,6 +550,9 @@ NSString * const kEmailSIPLabel = @"sip";
 }
 
 - (void)showUnavailableState {
+#ifdef SIP_OBJC
+    [[NSNotificationCenter defaultCenter] postNotificationName:kAccountSIPUnavailable object:self];
+#endif
 #ifndef TARGET_OS_IPHONE
     NSSize buttonSize = [[self accountStatePopUp] frame].size;
     
@@ -570,6 +585,9 @@ NSString * const kEmailSIPLabel = @"sip";
 }
 
 - (void)showOfflineState {
+#ifdef SIP_OBJC
+    [[NSNotificationCenter defaultCenter] postNotificationName:kAccountSIPUnavailable object:self];
+#endif
 #ifndef TARGET_OS_IPHONE
     NSSize buttonSize = [[self accountStatePopUp] frame].size;
     

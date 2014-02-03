@@ -45,6 +45,12 @@ enum {
 // Address Book label for SIP address in the email field.
 extern NSString * const kEmailSIPLabel;
 
+#ifdef SIP_OBJC
+extern NSString * const kAccountSIPAvailable;
+extern NSString * const kAccountSIPUnavailable;
+extern NSString * const kAccountSIPOffline;
+#endif
+
 @class AKSIPURI, AKNetworkReachability;
 #ifndef TARGET_OS_IPHONE
 @class ActiveAccountViewController, AuthenticationFailureController;
