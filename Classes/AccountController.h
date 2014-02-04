@@ -49,6 +49,7 @@ extern NSString * const kEmailSIPLabel;
 extern NSString * const kAccountSIPAvailable;
 extern NSString * const kAccountSIPUnavailable;
 extern NSString * const kAccountSIPOffline;
+extern NSString * const kAccountCreateSIPCallOut;
 #endif
 
 @class AKSIPURI, AKNetworkReachability;

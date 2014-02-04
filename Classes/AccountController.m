@@ -66,7 +66,10 @@
 #import "CallTransferController.h"
 #import "EndedCallViewController.h"
 #import "IncomingCallViewController.h"
-
+#   else
+#import "CallViewController.h"
+#import "AppDelegate.h"
+#import "UIStoryboard+GetViewController.h"
 #endif
 
 #import "PreferencesController.h"
@@ -101,6 +104,7 @@ NSString * const kEmailSIPLabel = @"sip";
 NSString * const kAccountSIPAvailable = @"AccountSIPAvailable";
 NSString * const kAccountSIPUnavailable = @"AccountSIPUnvailable";
 NSString * const kAccountSIPOffline = @"AccountSIPOffline";
+NSString * const kAccountCreateSIPCallOut = @"AccountCreateSIPCallOut";
 #endif
 
 @interface AccountController ()
@@ -378,25 +382,46 @@ NSString * const kAccountSIPOffline = @"AccountSIPOffline";
     [aCallController setNameFromAddressBook:[destinationURI displayName]];
     [aCallController setPhoneLabelFromAddressBook:phoneLabel];
     [aCallController setEnteredCallDestination:enteredCallDestinationString];
+#else
+    GetDelegate(delegate);
+    CallViewController *aCallController = [delegate.storyMain getViewControllerByClass:[CallViewController class]];
+    [aCallController view];
+#endif
     [[self callControllers] addObject:aCallController];
 
     // Set title.
     if ([[destinationURI host] length] > 0) {
+#ifndef TARGET_OS_IPHONE
         [[aCallController window] setTitle:[destinationURI SIPAddress]];
+#else
+        aCallController.title = [destinationURI SIPAddress];
+#endif
         
     } else if (![enteredCallDestinationString ak_hasLetters]) {
         if ([enteredCallDestinationString ak_isTelephoneNumber] && [defaults boolForKey:kFormatTelephoneNumbers]) {
+#ifndef TARGET_OS_IPHONE
             [[aCallController window] setTitle:
              [telephoneNumberFormatter stringForObjectValue:enteredCallDestinationString]];
+#else
+            aCallController.title = [telephoneNumberFormatter stringForObjectValue:enteredCallDestinationString];
+#endif
         } else {
+#ifndef TARGET_OS_IPHONE
             [[aCallController window] setTitle:enteredCallDestinationString];
+#else
+            aCallController.title = enteredCallDestinationString;
+#endif
         }
     } else {
         NSString *SIPAddress = [NSString stringWithFormat:@"%@@%@",
                                 [destinationURI user], [[[self account] registrationURI] host]];
+#ifndef TARGET_OS_IPHONE
         [[aCallController window] setTitle:SIPAddress];
+#else
+        aCallController.title = SIPAddress;
+#endif
     }
-    
+#ifndef TARGET_OS_IPHONE
     // Set displayed name.
     if ([[destinationURI displayName] length] > 0) {
         [aCallController setDisplayedName:[destinationURI displayName]];
@@ -415,7 +440,7 @@ NSString * const kAccountSIPOffline = @"AccountSIPOffline";
             [aCallController setDisplayedName:enteredCallDestinationString];
         }
     }
-    
+#endif
     // Clean display-name part of the destination URI to prevent another call
     // party from seeing local Address Book records.
     [destinationURI setDisplayName:nil];
@@ -423,7 +448,7 @@ NSString * const kAccountSIPOffline = @"AccountSIPOffline";
     if ([[destinationURI host] length] == 0) {
         [destinationURI setHost:[[[self account] registrationURI] host]];
     }
-    
+#ifndef TARGET_OS_IPHONE
     // Set URI for redial.
     [aCallController setRedialURI:destinationURI];
     
@@ -431,7 +456,7 @@ NSString * const kAccountSIPOffline = @"AccountSIPOffline";
         [aCallController addViewController:[aCallController activeCallViewController]];
         [aCallController setCallInfoViewResizingWindow:[[aCallController activeCallViewController] view]];
     }
-    
+#endif
     if ([phoneLabel length] > 0) {
         [aCallController setStatus:
          [NSString stringWithFormat:NSLocalizedString(@"calling %@...",
@@ -440,23 +465,25 @@ NSString * const kAccountSIPOffline = @"AccountSIPOffline";
     } else {
         [aCallController setStatus:NSLocalizedString(@"calling...", @"Outgoing call in progress.")];
     }
-    
+#ifndef TARGET_OS_IPHONE
     if (callTransferController == nil) {
         [aCallController showWindow:self];
     }
-    
+#endif
     // Finally, make a call.
     AKSIPCall *aCall = [[self account] makeCallTo:destinationURI];
     if (aCall != nil) {
         [aCallController setCall:aCall];
         [aCallController setCallActive:YES];
     } else {
+#ifndef TARGET_OS_IPHONE
         [aCallController removeObjectFromViewControllersAtIndex:0];
         [aCallController addViewController:[aCallController endedCallViewController]];
         [aCallController setCallInfoViewResizingWindow:[[aCallController endedCallViewController] view]];
+#endif
         [aCallController setStatus:NSLocalizedString(@"Call Failed", @"Call failed.")];
     }
-#endif
+
 }
 
 - (void)makeCallToURI:(AKSIPURI *)destinationURI phoneLabel:(NSString *)phoneLabel {
@@ -850,15 +877,17 @@ NSString * const kAccountSIPOffline = @"AccountSIPOffline";
         
     } else if (![[NSUserDefaults standardUserDefaults] boolForKey:kCallWaiting]) {
         // Reply with 486 Busy Here if needed.
-#ifndef TARGET_OS_IPHONE //FIXIT
+#ifndef TARGET_OS_IPHONE
         for (CallController *callController in [self callControllers]) {
+#else
+        for (CallViewController *callController in [self callControllers]) {
+#endif
             if ([callController isCallActive]) {
                 [aCall replyWithBusyHere];
                 
                 return;
             }
         }
-#endif
     }
 #ifndef TARGET_OS_IPHONE
     [[NSApp delegate] pauseITunes];
