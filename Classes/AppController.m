@@ -317,7 +317,12 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
                            selector:@selector(accountSetupControllerDidAddAccount:)
                                name:AKAccountSetupControllerDidAddAccountNotification
                              object:nil];
-    
+#ifdef TARGET_OS_IPHONE
+    [notificationCenter addObserver:self
+                           selector:@selector(preferencesControllerDidChangeAccountEnabled:)
+                               name:AKPreferencesControllerDidChangeAccountEnabledNotification
+                             object:nil];
+#endif
     // Subscribe to account notifications.
     [notificationCenter addObserver:self
                            selector:@selector(SIPAccountWillMakeCall:)
