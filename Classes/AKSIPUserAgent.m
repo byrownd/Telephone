@@ -340,7 +340,9 @@ static void log_call_dump(int call_id);
         pjsua_logging_config_default(&loggingConfig);
         pjsua_media_config_default(&mediaConfig);
         pjsua_transport_config_default(&transportConfig);
-        
+#ifdef SIP_OBJC_TRANSPORT_ONLY_UDP
+        pjsip_cfg()->endpt.disable_tcp_switch = PJ_TRUE;
+#endif
         userAgentConfig.max_calls = kAKSIPCallsMax;
         
         if ([[self nameservers] count] > 0) {

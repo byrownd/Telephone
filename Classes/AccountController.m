@@ -484,6 +484,10 @@ NSString * const kAccountCreateSIPCallOut = @"AccountCreateSIPCallOut";
         [aCallController setStatus:NSLocalizedString(@"Call Failed", @"Call failed.")];
     }
 
+#ifdef TARGET_OS_IPHONE
+    [[NSNotificationCenter defaultCenter] postNotificationName:kAccountCreateSIPCallOut object:self];
+#endif
+
 }
 
 - (void)makeCallToURI:(AKSIPURI *)destinationURI phoneLabel:(NSString *)phoneLabel {
@@ -613,7 +617,7 @@ NSString * const kAccountCreateSIPCallOut = @"AccountCreateSIPCallOut";
 
 - (void)showOfflineState {
 #ifdef SIP_OBJC
-    [[NSNotificationCenter defaultCenter] postNotificationName:kAccountSIPUnavailable object:self];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kAccountSIPOffline object:self];
 #endif
 #ifndef TARGET_OS_IPHONE
     NSSize buttonSize = [[self accountStatePopUp] frame].size;
