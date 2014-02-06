@@ -50,6 +50,7 @@ extern NSString * const kAccountSIPAvailable;
 extern NSString * const kAccountSIPUnavailable;
 extern NSString * const kAccountSIPOffline;
 extern NSString * const kAccountCreateSIPCallOut;
+extern NSString * const kAccountCreateSIPCallIn;
 #endif
 
 @class AKSIPURI, AKNetworkReachability;

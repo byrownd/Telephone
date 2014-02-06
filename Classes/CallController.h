@@ -33,6 +33,18 @@
 #import "XSWindowController.h"
 #endif
 
+#ifdef TARGET_OS_IPHONE
+extern NSString * const kSIPCallCalling;
+extern NSString * const kSIPCallEarly;
+extern NSString * const kSIPCallDidConfirm;
+extern NSString * const kSIPCallDidDisconnect;
+extern NSString * const kSIPCallMediaDidBecomeActive;
+extern NSString * const kSIPCallDidLocalHold;
+extern NSString * const kSIPCallDidRemoteHold;
+extern NSString * const kSIPCallTransferStatusDidChange;
+extern NSString * const kSIPCallSetStatus;
+#endif
+
 // Notifications.
 //
 // Sent when call window is about to be closed.
@@ -129,6 +141,7 @@ extern NSString * const AKCallWindowWillCloseNotification;
 - (void)setCallInfoViewResizingWindow:(NSView *)newView;
 #else
 - (id)initWithAccountController:(AccountController *)anAccountController;
+- (void)windowWillClose;
 #endif
 
 // Accepts an incoming call.

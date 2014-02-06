@@ -62,6 +62,18 @@
 #endif
 #import "PreferencesController.h"
 
+#ifdef TARGET_OS_IPHONE
+NSString * const kSIPCallCalling                    = @"SIPCallCalling";
+NSString * const kSIPCallEarly                      = @"SIPCallEarly";
+NSString * const kSIPCallDidConfirm                 = @"SIPCallDidConfirm";
+NSString * const kSIPCallDidDisconnect              = @"SIPCallDidDisconnect";
+NSString * const kSIPCallMediaDidBecomeActive       = @"SIPCallMediaDidBecomeActive";
+NSString * const kSIPCallDidLocalHold               = @"SIPCallDidLocalHold";
+NSString * const kSIPCallDidRemoteHold              = @"SIPCallDidRemoteHold";
+NSString * const kSIPCallTransferStatusDidChange    = @"SIPCallTransferStatusDidChange";
+NSString * const kSIPCallSetStatus                  = @"SIPCallSetStatus";
+#endif
+
 NSString * const AKCallWindowWillCloseNotification = @"AKCallWindowWillClose";
 
 // Window auto-close delay.
@@ -477,13 +489,18 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
 #ifndef TARGET_OS_IPHONE
 - (void)windowWillClose:(NSNotification *)notification {
     [super windowWillClose:notification];
-    
+#else
+- (void)windowWillClose {
+#endif
     if ([self isCallActive]) {
         [self setCallActive:NO];
+#ifndef TARGET_OS_IPHONE
         [[self activeCallViewController] stopCallTimer];
-        
+#endif
         if ([[self call] isIncoming]) {
+#ifndef TARGET_OS_IPHONE
             [[NSApp delegate] stopRingtoneTimerIfNeeded];
+#endif
         }
         
         if ([[[self call] delegate] isEqual:self]) {
@@ -491,23 +508,26 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
         }
         
         [[self call] hangUp];
-        
+#ifndef TARGET_OS_IPHONE
         [[NSApp delegate] resumeITunesIfNeeded];
+#endif
     }
     
     [self setCallUnhandled:NO];
+#ifndef TARGET_OS_IPHONE
     [[NSApp delegate] updateDockTileBadgeLabel];
-    
+#endif
     [[NSNotificationCenter defaultCenter] postNotificationName:AKCallWindowWillCloseNotification object:self];
-    
+
+#ifndef TARGET_OS_IPHONE
     // View controllers must be nullified because of bindings to callController's |displayedName| and |status|. When
     // this is done in -dealloc this is already too late, and KVO error about releaseing an object that is still being
     // observied is issued.
     _incomingCallViewController = nil;
     _activeCallViewController = nil;
     _endedCallViewController = nil;
-}
 #endif
+}
 
 #pragma mark -
 #pragma mark AKSIPCall notifications
@@ -779,5 +799,12 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
         [self setStatus:NSLocalizedString(@"call transferred", @"Call transferred.")];
     }
 }
+    
+#ifdef TARGET_OS_IPHONE
+- (void) setStatus:(NSString *)status {
+    _status = status;
+    [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallSetStatus object:_status];
+}
+#endif
 
 @end

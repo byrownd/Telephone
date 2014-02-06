@@ -66,10 +66,6 @@
 #import "CallTransferController.h"
 #import "EndedCallViewController.h"
 #import "IncomingCallViewController.h"
-#   else
-#import "CallViewController.h"
-#import "AppDelegate.h"
-#import "UIStoryboard+GetViewController.h"
 #endif
 
 #import "PreferencesController.h"
@@ -105,6 +101,7 @@ NSString * const kAccountSIPAvailable = @"AccountSIPAvailable";
 NSString * const kAccountSIPUnavailable = @"AccountSIPUnvailable";
 NSString * const kAccountSIPOffline = @"AccountSIPOffline";
 NSString * const kAccountCreateSIPCallOut = @"AccountCreateSIPCallOut";
+NSString * const kAccountCreateSIPCallIn = @"AccountCreateSIPCallIn";
 #endif
 
 @interface AccountController ()
@@ -370,23 +367,27 @@ NSString * const kAccountCreateSIPCallOut = @"AccountCreateSIPCallOut";
                                         stringByReplacingCharactersInRange:NSMakeRange(0, 1)
                                                                 withString:[self plusCharacterSubstitution]];
     }
-#ifndef TARGET_OS_IPHONE
+
     // If it's a regular call, not a transfer, create the new CallController.
     CallController *aCallController; //FIXIT
+#ifndef TARGET_OS_IPHONE
     if (callTransferController == nil) {
         aCallController = [[CallController alloc] initWithWindowNibName:@"Call" accountController:self];
     } else {
         aCallController = callTransferController;
     }
+#else
+    aCallController = [[CallController alloc] initWithAccountController:self];
+#endif
     
     [aCallController setNameFromAddressBook:[destinationURI displayName]];
     [aCallController setPhoneLabelFromAddressBook:phoneLabel];
     [aCallController setEnteredCallDestination:enteredCallDestinationString];
-#else
-    GetDelegate(delegate);
-    CallViewController *aCallController = [delegate.storyMain getViewControllerByClass:[CallViewController class]];
-    [aCallController view];
-#endif
+
+//    GetDelegate(delegate);
+//    CallViewController *aCallController = [delegate.storyMain getViewControllerByClass:[CallViewController class]];
+//    [aCallController view];
+
     [[self callControllers] addObject:aCallController];
 
     // Set title.
@@ -881,11 +882,7 @@ NSString * const kAccountCreateSIPCallOut = @"AccountCreateSIPCallOut";
         
     } else if (![[NSUserDefaults standardUserDefaults] boolForKey:kCallWaiting]) {
         // Reply with 486 Busy Here if needed.
-#ifndef TARGET_OS_IPHONE
         for (CallController *callController in [self callControllers]) {
-#else
-        for (CallViewController *callController in [self callControllers]) {
-#endif
             if ([callController isCallActive]) {
                 [aCall replyWithBusyHere];
                 
@@ -897,12 +894,14 @@ NSString * const kAccountCreateSIPCallOut = @"AccountCreateSIPCallOut";
     [[NSApp delegate] pauseITunes];
     
     CallController *aCallController = [[CallController alloc] initWithWindowNibName:@"Call" accountController:self];
-    
+#else
+    CallController *aCallController = [[CallController alloc] initWithAccountController:self];
+#endif
     [aCallController setCall:aCall];
     [aCallController setCallActive:YES];
     [aCallController setCallUnhandled:YES];
     [[self callControllers] addObject:aCallController];
-#endif
+
     AKSIPURIFormatter *SIPURIFormatter = [[AKSIPURIFormatter alloc] init];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [SIPURIFormatter setFormatsTelephoneNumbers:[defaults boolForKey:kFormatTelephoneNumbers]];
@@ -1171,6 +1170,10 @@ NSString * const kAccountCreateSIPCallOut = @"AccountCreateSIPCallOut";
     }
 #endif
     [aCall sendRingingNotification];
+    
+#ifdef TARGET_OS_IPHONE
+    [[NSNotificationCenter defaultCenter] postNotificationName:kAccountCreateSIPCallIn object:self];
+#endif
 }
 
 
