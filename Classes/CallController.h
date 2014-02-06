@@ -42,13 +42,22 @@ extern NSString * const AKCallWindowWillCloseNotification;
 @class AccountController, AKSIPCall, AKResponsiveProgressIndicator, AKSIPURI;
 @class IncomingCallViewController, ActiveCallViewController;
 @class EndedCallViewController, CallTransferController;
+#else
+@class AccountController, AKSIPCall, AKSIPURI;
+#endif
 
 // A call controller.
+#ifndef TARGET_OS_IPHONE
 @interface CallController : XSWindowController {
   @protected
     ActiveCallViewController *_activeCallViewController;
     EndedCallViewController *_endedCallViewController;
 }
+#else
+@interface CallController : NSObject {
+
+}
+#endif
 
 // The receiver's identifier.
 @property (nonatomic, copy) NSString *identifier;
@@ -59,6 +68,7 @@ extern NSString * const AKCallWindowWillCloseNotification;
 // Account controller the receiver belongs to.
 @property (nonatomic, weak) AccountController *accountController;
 
+#ifndef TARGET_OS_IPHONE
 // Call transfer controller.
 @property (nonatomic, readonly) CallTransferController *callTransferController;
 
@@ -71,7 +81,9 @@ extern NSString * const AKCallWindowWillCloseNotification;
 
 // Ended call view controller.
 @property (nonatomic, readonly, strong) EndedCallViewController *endedCallViewController;
-
+#else
+@property (nonatomic, strong) NSString *title;
+#endif
 
 // Remote party dislpay name.
 @property (nonatomic, copy) NSString *displayedName;
@@ -108,12 +120,16 @@ extern NSString * const AKCallWindowWillCloseNotification;
 @property (nonatomic, assign, getter=isCallUnhandled) BOOL callUnhandled;
 
 
+#ifndef TARGET_OS_IPHONE
 // Designated initializer.
 // Initializes a CallController object with a given nib file and account controller.
 - (id)initWithWindowNibName:(NSString *)windowNibName accountController:(AccountController *)anAccountController;
 
 // Sets new call info view and resizes window if needed.
 - (void)setCallInfoViewResizingWindow:(NSView *)newView;
+#else
+- (id)initWithAccountController:(AccountController *)anAccountController;
+#endif
 
 // Accepts an incoming call.
 - (void)acceptCall;
@@ -138,4 +154,3 @@ extern NSString * const AKCallWindowWillCloseNotification;
 - (void)intermediateStatusTimerTick:(NSTimer *)theTimer;
 
 @end
-#endif

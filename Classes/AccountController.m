@@ -61,8 +61,8 @@
 #import "AppController.h"
 #import "AuthenticationFailureController.h"
 
-#ifndef TARGET_OS_IPHONE
 #import "CallController.h"
+#ifndef TARGET_OS_IPHONE
 #import "CallTransferController.h"
 #import "EndedCallViewController.h"
 #import "IncomingCallViewController.h"
