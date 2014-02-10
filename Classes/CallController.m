@@ -552,6 +552,10 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
     
     [[[self activeCallViewController] hangUpButton] setEnabled:YES];
     [[[self activeCallViewController] callProgressIndicator] startAnimation:self];
+#else
+    NSLog(@"SIPCallCalling");
+    [self setStatus:NSLocalizedString(@"calling...", @"Outgoing call in progress.")];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallCalling object:self];
 #endif
 }
 
@@ -585,6 +589,9 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
     }
 #ifndef TARGET_OS_IPHONE
     [[[self activeCallViewController] hangUpButton] setEnabled:YES];
+#else
+    NSLog(@"SIPCallEarly");
+    [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallEarly object:self];
 #endif
 }
 
@@ -624,6 +631,9 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
     if ([[[self activeCallViewController] view] acceptsFirstResponder]) {
         [[self window] makeFirstResponder:[[self activeCallViewController] view]];
     }
+#else
+    NSLog(@"SIPCallDidConfirm");
+    [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallDidConfirm object:self];
 #endif
 }
 
@@ -763,6 +773,9 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
             [self performSelector:@selector(closeCallWindow) withObject:nil afterDelay:kCallWindowAutoCloseTime];
         }
     }
+#else
+    NSLog(@"SIPCallDidDisconnect");
+    [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallDidDisconnect object:self];
 #endif
 }
 
@@ -772,6 +785,10 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
         
         [self setIntermediateStatus:NSLocalizedString(@"off hold", @"Call has been taken off hold status text.")];
     }
+#ifdef TARGET_OS_IPHONE
+    NSLog(@"SIPCallMediaDidBecomeActive");
+    [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallMediaDidBecomeActive object:self];
+#endif
 }
 
 - (void)SIPCallDidLocalHold:(NSNotification *)notification {
@@ -780,6 +797,10 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
     [[self activeCallViewController] stopCallTimer];
 #endif
     [self setStatus:NSLocalizedString(@"on hold", @"Call on local hold status text.")];
+#ifdef TARGET_OS_IPHONE
+    NSLog(@"SIPCallDidLocalHold");
+    [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallDidLocalHold object:self];
+#endif
 }
 
 - (void)SIPCallDidRemoteHold:(NSNotification *)notification {
@@ -788,6 +809,10 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
     [[self activeCallViewController] stopCallTimer];
 #endif
     [self setStatus:NSLocalizedString(@"on remote hold", @"Call on remote hold status text.")];
+#ifdef TARGET_OS_IPHONE
+    NSLog(@"SIPCallDidRemoteHold");
+    [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallDidRemoteHold object:self];
+#endif
 }
 
 - (void)SIPCallTransferStatusDidChange:(NSNotification *)notification {
@@ -798,6 +823,10 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
         [self hangUpCall];
         [self setStatus:NSLocalizedString(@"call transferred", @"Call transferred.")];
     }
+#ifdef TARGET_OS_IPHONE
+    NSLog(@"SIPCallTransferStatusDidChange");
+    [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallTransferStatusDidChange object:self];
+#endif
 }
     
 #ifdef TARGET_OS_IPHONE
