@@ -804,6 +804,7 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
 - (void) setStatus:(NSString *)status {
     _status = status;
     [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallSetStatus object:_status];
+    NSLog(@"status: %@", _status);
 }
 #endif
 

@@ -100,8 +100,10 @@ NSString * const kEmailSIPLabel = @"sip";
 NSString * const kAccountSIPAvailable = @"AccountSIPAvailable";
 NSString * const kAccountSIPUnavailable = @"AccountSIPUnvailable";
 NSString * const kAccountSIPOffline = @"AccountSIPOffline";
-NSString * const kAccountCreateSIPCallOut = @"AccountCreateSIPCallOut";
-NSString * const kAccountCreateSIPCallIn = @"AccountCreateSIPCallIn";
+NSString * const kAccountWillCreateSIPCallOut = @"AccountWillCreateSIPCallOut";
+NSString * const kAccountDidCreateSIPCallOut = @"AccountDidCreateSIPCallOut";
+NSString * const kAccountWillCreateSIPCallIn = @"AccountWillCreateSIPCallIn";
+NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
 #endif
 
 @interface AccountController ()
@@ -344,7 +346,11 @@ NSString * const kAccountCreateSIPCallIn = @"AccountCreateSIPCallIn";
 - (void)makeCallToURI:(AKSIPURI *)destinationURI
         phoneLabel:(NSString *)phoneLabel
         callTransferController:(CallTransferController *)callTransferController {
-    
+
+#ifdef TARGET_OS_IPHONE
+    [[NSNotificationCenter defaultCenter] postNotificationName:kAccountWillCreateSIPCallOut object:self];
+#endif
+            
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     AKTelephoneNumberFormatter *telephoneNumberFormatter = [[AKTelephoneNumberFormatter alloc] init];
     [telephoneNumberFormatter setSplitsLastFourDigits:
@@ -484,11 +490,10 @@ NSString * const kAccountCreateSIPCallIn = @"AccountCreateSIPCallIn";
 #endif
         [aCallController setStatus:NSLocalizedString(@"Call Failed", @"Call failed.")];
     }
-
+            
 #ifdef TARGET_OS_IPHONE
-    [[NSNotificationCenter defaultCenter] postNotificationName:kAccountCreateSIPCallOut object:self];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kAccountDidCreateSIPCallOut object:self];
 #endif
-
 }
 
 - (void)makeCallToURI:(AKSIPURI *)destinationURI phoneLabel:(NSString *)phoneLabel {
@@ -1172,7 +1177,7 @@ NSString * const kAccountCreateSIPCallIn = @"AccountCreateSIPCallIn";
     [aCall sendRingingNotification];
     
 #ifdef TARGET_OS_IPHONE
-    [[NSNotificationCenter defaultCenter] postNotificationName:kAccountCreateSIPCallIn object:self];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kAccountWillCreateSIPCallIn object:self];
 #endif
 }
 
