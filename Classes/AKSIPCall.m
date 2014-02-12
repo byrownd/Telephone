@@ -235,7 +235,11 @@ NSString * const AKSIPCallTransferStatusDidChangeNotification = @"AKSIPCallTrans
 - (void)answer {
     pj_status_t status = pjsua_call_answer([self identifier], PJSIP_SC_OK, NULL, NULL);
     if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"Error answering call %@", self);
+#else
         NSLog(@"Error answering call %@", self);
+#endif
     }
 }
 
@@ -246,7 +250,11 @@ NSString * const AKSIPCallTransferStatusDidChangeNotification = @"AKSIPCallTrans
     
     pj_status_t status = pjsua_call_hangup([self identifier], 0, NULL, NULL);
     if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"Error hanging up call %@", self);
+#else
         NSLog(@"Error hanging up call %@", self);
+#endif
     }
 }
 
@@ -258,28 +266,44 @@ NSString * const AKSIPCallTransferStatusDidChangeNotification = @"AKSIPCallTrans
                                                   PJSUA_XFER_NO_REQUIRE_REPLACES,
                                                   NULL);
     if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"Error transfering call %@", self);
+#else
         NSLog(@"Error transfering call %@", self);
+#endif
     }
 }
 
 - (void)sendRingingNotification {
     pj_status_t status = pjsua_call_answer([self identifier], PJSIP_SC_RINGING, NULL, NULL);
     if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"Error sending ringing notification in call %@", self);
+#else
         NSLog(@"Error sending ringing notification in call %@", self);
+#endif
     }
 }
 
 - (void)replyWithTemporarilyUnavailable {
     pj_status_t status = pjsua_call_answer([self identifier], PJSIP_SC_TEMPORARILY_UNAVAILABLE, NULL, NULL);
     if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"Error replying with 480 Temporarily Unavailable");
+#else
         NSLog(@"Error replying with 480 Temporarily Unavailable");
+#endif
     }
 }
 
 - (void)replyWithBusyHere {
     pj_status_t status = pjsua_call_answer([self identifier], PJSIP_SC_BUSY_HERE, NULL, NULL);
     if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"Error replying with 486 Busy Here");
+#else
         NSLog(@"Error replying with 486 Busy Here");
+#endif
     }
 }
 
@@ -304,7 +328,11 @@ NSString * const AKSIPCallTransferStatusDidChangeNotification = @"AKSIPCallTrans
             
             status = pjsua_call_send_request([self identifier], &kSIPINFO, &messageData);
             if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+                DDLogError(@"Error sending DTMF");
+#else
                 NSLog(@"Error sending DTMF");
+#endif
             }
         }
     }
@@ -322,7 +350,11 @@ NSString * const AKSIPCallTransferStatusDidChangeNotification = @"AKSIPCallTrans
     if (status == PJ_SUCCESS) {
         [self setMicrophoneMuted:YES];
     } else {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"Error muting microphone in call %@", self);
+#else
         NSLog(@"Error muting microphone in call %@", self);
+#endif
     }
 }
 
@@ -338,7 +370,11 @@ NSString * const AKSIPCallTransferStatusDidChangeNotification = @"AKSIPCallTrans
     if (status == PJ_SUCCESS) {
         [self setMicrophoneMuted:NO];
     } else {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"Error unmuting microphone in call %@", self);
+#else
         NSLog(@"Error unmuting microphone in call %@", self);
+#endif
     }
 }
 

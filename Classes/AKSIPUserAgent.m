@@ -296,7 +296,11 @@ static void log_call_dump(int call_id);
     // thread.
     pj_status_t status = pjsua_create();
     if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"Error creating PJSUA");
+#else
         NSLog(@"Error creating PJSUA");
+#endif
         [self setState:kAKSIPUserAgentStopped];
         [[self pjsuaLock] unlock];
         return;
@@ -322,7 +326,11 @@ static void log_call_dump(int call_id);
             pj_thread_t *pjThread;
             status = pj_thread_register(NULL, aPJThreadDesc, &pjThread);
             if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+                DDLogError(@"Error registering thread at PJSUA");
+#else
                 NSLog(@"Error registering thread at PJSUA");
+#endif
             }
         }
         
@@ -399,7 +407,11 @@ static void log_call_dump(int call_id);
         // Initialize PJSUA.
         status = pjsua_init(&userAgentConfig, &loggingConfig, &mediaConfig);
         if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+            DDLogError(@"Error initializing PJSUA");
+#else
             NSLog(@"Error initializing PJSUA");
+#endif
             [self stop];
             [[self pjsuaLock] unlock];
             return;
@@ -423,7 +435,11 @@ static void log_call_dump(int call_id);
                                          PJMEDIA_TONEGEN_LOOP,
                                          &aRingbackPort);
         if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+            DDLogError(@"Error creating ringback tones");
+#else
             NSLog(@"Error creating ringback tones");
+#endif
             [self stop];
             [[self pjsuaLock] unlock];
             return;
@@ -445,7 +461,11 @@ static void log_call_dump(int call_id);
         pjsua_conf_port_id aRingbackSlot;
         status = pjsua_conf_add_port([self pjPool], [self ringbackPort], &aRingbackSlot);
         if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+            DDLogError(@"Error adding media port for ringback tones");
+#else
             NSLog(@"Error adding media port for ringback tones");
+#endif
             [self stop];
             [[self pjsuaLock] unlock];
             return;
@@ -457,7 +477,11 @@ static void log_call_dump(int call_id);
         pjsua_transport_id transportIdentifier;
         status = pjsua_transport_create(PJSIP_TRANSPORT_UDP, &transportConfig, &transportIdentifier);
         if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+            DDLogError(@"Error creating transport");
+#else
             NSLog(@"Error creating transport");
+#endif
             [self stop];
             [[self pjsuaLock] unlock];
             return;
@@ -468,7 +492,11 @@ static void log_call_dump(int call_id);
             pjsua_transport_info transportInfo;
             status = pjsua_transport_get_info(transportIdentifier, &transportInfo);
             if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+                DDLogError(@"Error getting transport info");
+#else
                 NSLog(@"Error getting transport info");
+#endif
             }
             
             [self setTransportPort:transportInfo.local_name.port];
@@ -480,7 +508,11 @@ static void log_call_dump(int call_id);
         // Add TCP transport. Don't return, just leave a log message on error.
         status = pjsua_transport_create(PJSIP_TRANSPORT_TCP, &transportConfig, NULL);
         if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+            DDLogError(@"Error creating TCP transport");
+#else
             NSLog(@"Error creating TCP transport");
+#endif
         }
         
         // Update codecs.
@@ -489,7 +521,11 @@ static void log_call_dump(int call_id);
         // Start PJSUA.
         status = pjsua_start();
         if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+            DDLogError(@"Error starting PJSUA");
+#else
             NSLog(@"Error starting PJSUA");
+#endif
             [self stop];
             [[self pjsuaLock] unlock];
             return;
@@ -532,7 +568,11 @@ static void log_call_dump(int call_id);
             pj_status_t status = pj_thread_register(NULL, aPJThreadDesc, &pjThread);
             
             if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+                DDLogError(@"Error registering thread at PJSUA");
+#else
                 NSLog(@"Error registering thread at PJSUA");
+#endif
             }
         }
         
@@ -561,7 +601,11 @@ static void log_call_dump(int call_id);
         status = pjsua_destroy();
         
         if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+            DDLogError(@"Error stopping SIP user agent");
+#else
             NSLog(@"Error stopping SIP user agent");
+#endif
         }
         
         NSNotification *notification = [NSNotification notificationWithName:AKSIPUserAgentDidFinishStoppingNotification
@@ -624,7 +668,11 @@ static void log_call_dump(int call_id);
     pj_status_t status = pjsua_acc_add(&accountConfig, PJ_FALSE,
                                        &accountIdentifier);
     if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"Error adding account %@ with status %d", anAccount, status);
+#else
         NSLog(@"Error adding account %@ with status %d", anAccount, status);
+#endif
         return NO;
     }
     
@@ -757,7 +805,11 @@ static void log_call_dump(int call_id);
     unsigned codecCount = kCodecInfoSize;
     pj_status_t status = pjsua_enum_codecs(codecInfo, &codecCount);
     if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"Error getting list of codecs");
+#else
         NSLog(@"Error getting list of codecs");
+#endif
     } else {
         static NSString * const kPCMU = @"PCMU/8000/1";
         static NSString * const kPCMA = @"PCMA/8000/1";
@@ -771,12 +823,20 @@ static void log_call_dump(int call_id);
                 }
                 status = pjsua_codec_set_priority(&codecInfo[i].codec_id, priority);
                 if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+                    DDLogError(@"Error setting codec priority to zero");
+#else
                     NSLog(@"Error setting codec priority to zero");
+#endif
                 }
             } else {
                 status = pjsua_codec_set_priority(&codecInfo[i].codec_id, defaultPriority);
                 if (status != PJ_SUCCESS) {
+#ifdef SIP_OBJC_DDLOG
+                    DDLogError(@"Error setting codec priority to the default value");
+#else
                     NSLog(@"Error setting codec priority to the default value");
+#endif
                 }
             }
         }

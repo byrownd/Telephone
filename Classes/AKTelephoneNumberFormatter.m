@@ -269,7 +269,11 @@
     if (converted) {
         return telephoneNumber;
     } else {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"%@", error);
+#else
         NSLog(@"%@", error);
+#endif
         return nil;
     }
 }

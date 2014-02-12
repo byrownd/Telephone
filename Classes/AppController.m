@@ -841,7 +841,11 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
     NSError *error = nil;
     BOOL installed = [self installAddressBookPlugInsAndReturnError:&error];
     if (!installed && error != nil) {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"%@", error);
+#else
         NSLog(@"%@", error);
+#endif
         
         NSString *libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,
                                                                      NSUserDomainMask,
@@ -898,8 +902,13 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
                                                attributes:nil
                                                     error:&error];
         if (!created) {
+#ifdef SIP_OBJC_DDLOG
+            DDLogError(@"Error creating directory %@. %@",
+                  directoryPath, [error localizedDescription]);
+#else
             NSLog(@"Error creating directory %@. %@",
                   directoryPath, [error localizedDescription]);
+#endif
         }
     }
 }
@@ -954,7 +963,11 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         }
         
     } else if (!isDir) {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"%@ is not a directory", installPath);
+#else
         NSLog(@"%@ is not a directory", installPath);
+#endif
         return NO;
     }
     
@@ -1478,8 +1491,13 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         [self setShouldRestartUserAgentASAP:NO];
         
     } else {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"Could not start SIP user agent. "
+              "Please check your network connection and STUN server settings.");
+#else
         NSLog(@"Could not start SIP user agent. "
               "Please check your network connection and STUN server settings.");
+#endif
         
         [self setShouldRegisterAllAccounts:NO];
         
@@ -2065,7 +2083,11 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
     if ([NSPasteboard instancesRespondToSelector:
          @selector(canReadObjectForClasses:options:)] &&
         ![pboard canReadObjectForClasses:classes options:options]) {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"Could not make call, pboard couldn't give string.");
+#else
         NSLog(@"Could not make call, pboard couldn't give string.");
+#endif
     }
     
     NSString *pboardString = [pboard stringForType:NSPasteboardTypeString];

@@ -265,7 +265,11 @@ NSString * const AKSIPAccountWillMakeCallNotification = @"AKSIPAccountWillMakeCa
         call = [[AKSIPCall alloc] initWithSIPAccount:self identifier:callIdentifier];
         [self.calls addObject:call];
     } else {
+#ifdef SIP_OBJC_DDLOG
+        DDLogError(@"Error making call to %@ via account %@", destinationURI, self);
+#else
         NSLog(@"Error making call to %@ via account %@", destinationURI, self);
+#endif
     }
     
     return call;

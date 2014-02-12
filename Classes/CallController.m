@@ -553,7 +553,11 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
     [[[self activeCallViewController] hangUpButton] setEnabled:YES];
     [[[self activeCallViewController] callProgressIndicator] startAnimation:self];
 #else
+#ifdef SIP_OBJC_DDLOG
+    DDLogInfo(@"SIPCallCalling");
+#else
     NSLog(@"SIPCallCalling");
+#endif
     [self setStatus:NSLocalizedString(@"calling...", @"Outgoing call in progress.")];
     [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallCalling object:self];
 #endif
@@ -590,7 +594,11 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
 #ifndef TARGET_OS_IPHONE
     [[[self activeCallViewController] hangUpButton] setEnabled:YES];
 #else
+#ifdef SIP_OBJC_DDLOG
+    DDLogInfo(@"SIPCallEarly");
+#else
     NSLog(@"SIPCallEarly");
+#endif
     [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallEarly object:self];
 #endif
 }
@@ -632,7 +640,11 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
         [[self window] makeFirstResponder:[[self activeCallViewController] view]];
     }
 #else
+#ifdef SIP_OBJC_DDLOG
+    DDLogInfo(@"SIPCallDidConfirm");
+#else
     NSLog(@"SIPCallDidConfirm");
+#endif
     [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallDidConfirm object:self];
 #endif
 }
@@ -774,7 +786,11 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
         }
     }
 #else
+#ifdef SIP_OBJC_DDLOG
+    DDLogInfo(@"SIPCallDidDisconnect");
+#else
     NSLog(@"SIPCallDidDisconnect");
+#endif
     [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallDidDisconnect object:self];
 #endif
 }
@@ -786,7 +802,11 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
         [self setIntermediateStatus:NSLocalizedString(@"off hold", @"Call has been taken off hold status text.")];
     }
 #ifdef TARGET_OS_IPHONE
+#ifdef SIP_OBJC_DDLOG
+    DDLogInfo(@"SIPCallMediaDidBecomeActive");
+#else
     NSLog(@"SIPCallMediaDidBecomeActive");
+#endif
     [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallMediaDidBecomeActive object:self];
 #endif
 }
@@ -798,7 +818,11 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
 #endif
     [self setStatus:NSLocalizedString(@"on hold", @"Call on local hold status text.")];
 #ifdef TARGET_OS_IPHONE
+#ifdef SIP_OBJC_DDLOG
+    DDLogInfo(@"SIPCallDidLocalHold");
+#else
     NSLog(@"SIPCallDidLocalHold");
+#endif
     [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallDidLocalHold object:self];
 #endif
 }
@@ -810,7 +834,11 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
 #endif
     [self setStatus:NSLocalizedString(@"on remote hold", @"Call on remote hold status text.")];
 #ifdef TARGET_OS_IPHONE
+#ifdef SIP_OBJC_DDLOG
+    DDLogInfo(@"SIPCallDidRemoteHold");
+#else
     NSLog(@"SIPCallDidRemoteHold");
+#endif
     [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallDidRemoteHold object:self];
 #endif
 }
@@ -824,7 +852,11 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
         [self setStatus:NSLocalizedString(@"call transferred", @"Call transferred.")];
     }
 #ifdef TARGET_OS_IPHONE
+#ifdef SIP_OBJC_DDLOG
+    DDLogInfo(@"SIPCallTransferStatusDidChange");
+#else
     NSLog(@"SIPCallTransferStatusDidChange");
+#endif
     [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallTransferStatusDidChange object:self];
 #endif
 }
@@ -833,7 +865,11 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
 - (void) setStatus:(NSString *)status {
     _status = status;
     [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallSetStatus object:_status];
+#ifdef SIP_OBJC_DDLOG
+    DDLogInfo(@"status: %@", _status);
+#else
     NSLog(@"status: %@", _status);
+#endif
 }
 #endif
 
