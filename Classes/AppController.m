@@ -1387,9 +1387,11 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         
     } else {
         AccountController *theAccountController = [[self accountControllers] objectAtIndex:index];
-        
+
+#ifndef TARGET_OS_IPHONE
         // Close all call windows hanging up all calls.
         [[theAccountController callControllers] makeObjectsPerformSelector:@selector(close)];
+#endif
         
         // Remove account from the user agent.
         [theAccountController removeAccountFromUserAgent];
