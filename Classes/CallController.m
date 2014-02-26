@@ -72,6 +72,8 @@ NSString * const kSIPCallDidLocalHold               = @"SIPCallDidLocalHold";
 NSString * const kSIPCallDidRemoteHold              = @"SIPCallDidRemoteHold";
 NSString * const kSIPCallTransferStatusDidChange    = @"SIPCallTransferStatusDidChange";
 NSString * const kSIPCallSetStatus                  = @"SIPCallSetStatus";
+NSString * const kSIPWillHangUpCall                 = @"SIPWillHangUpCall";
+NSString * const kSIPDidHangUpCall                  = @"SIPDidHangUpCall";
 #endif
 
 NSString * const AKCallWindowWillCloseNotification = @"AKCallWindowWillClose";
@@ -280,6 +282,9 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
 }
 
 - (void)hangUpCall {
+#ifdef SIP_OBJC
+    [[NSNotificationCenter defaultCenter] postNotificationName:kSIPWillHangUpCall object:self];
+#endif
     [self setCallActive:NO];
     [self setCallUnhandled:NO];
 
@@ -325,6 +330,9 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
                    withObject:nil
                    afterDelay:kCallWindowAutoCloseTime];
     }
+#endif
+#ifdef SIP_OBJC
+    [[NSNotificationCenter defaultCenter] postNotificationName:kSIPDidHangUpCall object:self];
 #endif
 }
 
@@ -786,11 +794,11 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
         }
     }
 #else
-#ifdef SIP_OBJC_DDLOG
+#   ifdef SIP_OBJC_DDLOG
     DDLogInfo(@"SIPCallDidDisconnect");
-#else
+#   else
     NSLog(@"SIPCallDidDisconnect");
-#endif
+#   endif
     [[NSNotificationCenter defaultCenter] postNotificationName:kSIPCallDidDisconnect object:self];
 #endif
 }

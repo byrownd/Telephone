@@ -53,6 +53,8 @@ extern NSString * const kAccountWillCreateSIPCallOut;
 extern NSString * const kAccountDidCreateSIPCallOut;
 extern NSString * const kAccountWillCreateSIPCallIn;
 extern NSString * const kAccountDidCreateSIPCallIn;
+extern NSString * const kAccountWillHangUpCall;
+extern NSString * const kAccountDidHangUpCall;
 #endif
 
 @class AKSIPURI, AKNetworkReachability;
