@@ -87,9 +87,6 @@ extern NSString * const kProxyHost;
 extern NSString * const kProxyPort;
 extern NSString * const kUpdateContactHeader;
 extern NSString * const kUpdateViaHeader;
-#ifdef SIP_OBJC
-extern NSString * const kPassword;
-#endif
 
 extern NSString * const kSourceIndex;
 extern NSString * const kDestinationIndex;

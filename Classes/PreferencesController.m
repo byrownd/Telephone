@@ -84,9 +84,6 @@ NSString * const kProxyHost = @"ProxyHost";
 NSString * const kProxyPort = @"ProxyPort";
 NSString * const kUpdateContactHeader = @"UpdateContactHeader";
 NSString * const kUpdateViaHeader = @"UpdateViaHeader";
-#ifdef SIP_OBJC
-NSString * const kPassword = @"Password";
-#endif
 
 NSString * const kSourceIndex = @"SourceIndex";
 NSString * const kDestinationIndex = @"DestinationIndex";
