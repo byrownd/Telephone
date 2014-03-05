@@ -43,6 +43,8 @@ extern NSString * const kSIPCallDidLocalHold;
 extern NSString * const kSIPCallDidRemoteHold;
 extern NSString * const kSIPCallTransferStatusDidChange;
 extern NSString * const kSIPCallSetStatus;
+extern NSString * const kSIPWillHangUpCall;
+extern NSString * const kSIPDidHangUpCall;
 #endif
 
 // Notifications.
