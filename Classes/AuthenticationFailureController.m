@@ -29,7 +29,7 @@
 //
 
 #import "AuthenticationFailureController.h"
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 #import "AKSIPUserAgent.h"
 #import "AKKeychain.h"
 
@@ -39,7 +39,7 @@
 
 NSString * const AKAuthenticationFailureControllerDidChangeUsernameAndPasswordNotification
     = @"AKAuthenticationFailureControllerDidChangeUsernameAndPassword";
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 @implementation AuthenticationFailureController
 
 - (id)initWithAccountController:(AccountController *)anAccountController {

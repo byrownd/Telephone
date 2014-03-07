@@ -27,7 +27,7 @@
 //  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-#ifndef TARGET_OS_IPHONE
+#if !SIP_OBJC_IOS
 #import <Cocoa/Cocoa.h>
 #endif
 
@@ -35,7 +35,7 @@
 // |userInfo| object contains dictionary with the account data (see the account keys defined in
 // PreferencesController.h).
 extern NSString * const AKAccountSetupControllerDidAddAccountNotification;
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 // A class to manage account setup.
 @interface AccountSetupController : NSWindowController
 

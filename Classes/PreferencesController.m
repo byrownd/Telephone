@@ -29,7 +29,7 @@
 //
 
 #import "PreferencesController.h"
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 #import "AKNSWindow+Resizing.h"
 
 #import "AccountPreferencesViewController.h"
@@ -94,7 +94,7 @@ NSString * const AKPreferencesControllerDidChangeAccountEnabledNotification
 NSString * const AKPreferencesControllerDidSwapAccountsNotification = @"AKPreferencesControllerDidSwapAccounts";
 NSString * const AKPreferencesControllerDidChangeNetworkSettingsNotification
     = @"AKPreferencesControllerDidChangeNetworkSettings";
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 @implementation PreferencesController
 
 @synthesize generalPreferencesViewController = _generalPreferencesViewController;

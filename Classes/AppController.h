@@ -27,7 +27,7 @@
 //  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-#ifndef TARGET_OS_IPHONE
+#if !SIP_OBJC_IOS
 #import <Cocoa/Cocoa.h>
 #endif
 #import "AKSIPUserAgent.h"
@@ -84,7 +84,7 @@ extern NSString * const kGrowlNotificationCallEnded;
 // A Boolean value indicating whether user agent sound IO should be set as soon
 // as needed, e.g. on the next call.
 @property (nonatomic, assign) BOOL shouldSetUserAgentSoundIO;
-#ifndef TARGET_OS_IPHONE
+#if !SIP_OBJC_IOS
 // Incoming call ringtone.
 @property (nonatomic, strong) NSSound *ringtone;
 #endif
@@ -124,7 +124,7 @@ extern NSString * const kGrowlNotificationCallEnded;
 
 // Accounts menu items to show in windows menu.
 @property (nonatomic, strong) NSArray *accountsMenuItems;
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 // Application Window menu.
 @property (nonatomic, weak) IBOutlet NSMenu *windowMenu;
 
@@ -192,7 +192,7 @@ extern NSString * const kGrowlNotificationCallEnded;
 // Returns a localized string describing a given SIP response code.
 - (NSString *)localizedStringForSIPResponseCode:(NSInteger)responseCode;
 
-#ifdef TARGET_OS_IPHONE
+#if IS_SIP_OBJC
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification;
 - (void)applicationDidBecomeActive:(NSNotification *)aNotification;
 #endif

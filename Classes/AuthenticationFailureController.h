@@ -27,14 +27,14 @@
 //  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 #import <Cocoa/Cocoa.h>
 #endif
 
 // Posted whenever an AuthenticationFailureController object changes account's
 // username and password.
 extern NSString * const AKAuthenticationFailureControllerDidChangeUsernameAndPasswordNotification;
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 @class AccountController;
 
 // Instances of AuthenticationFailureController class allow user to update

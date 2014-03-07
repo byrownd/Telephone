@@ -30,7 +30,7 @@
 
 #import "AccountPreferencesViewController.h"
 
-#ifdef TARGET_OS_IPHONE
+#if IS_SIP_OBJC
 NSUInteger const kAccountsMax = 32;
 #else
 #import "AKKeychain.h"

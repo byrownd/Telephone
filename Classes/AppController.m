@@ -29,7 +29,7 @@
 //
 
 #import "AppController.h"
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 #import <CoreAudio/CoreAudio.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <Growl/Growl.h>
@@ -44,7 +44,7 @@
 #import "AKSIPCall.h"
 #import "AKSIPURI.h"
 #import "AKSIPUserAgent.h"
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 #import "iTunes.h"
 
 #import "AccountController.h"
@@ -85,7 +85,7 @@ static const NSTimeInterval kUserAgentRestartDelayAfterDNSChange = 3.0;
 
 // Dynamic store key to the global DNS settings.
 static NSString * const kDynamicStoreDNSSettings = @"State:/Network/Global/DNS";
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 // AudioHardware callback to track adding/removing audio devices.
 static OSStatus AudioDevicesChanged(AudioObjectID objectID,
                                     UInt32 numberAddresses,
@@ -96,7 +96,7 @@ static OSStatus GetAudioDevices(Ptr *devices, UInt16 *devicesCount);
 #endif
 // Dynamic store callback for DNS changes.
 static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, void *info);
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 @interface AppController () <NSUserNotificationCenterDelegate, GrowlApplicationBridgeDelegate>
 #else
 @interface AppController ()
@@ -129,7 +129,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 - (NSArray *)enabledAccountControllers {
     return [[self accountControllers] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"enabled == YES"]];
 }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 - (PreferencesController *)preferencesController {
     if (_preferencesController == nil) {
         _preferencesController = [[PreferencesController alloc] init];
@@ -161,7 +161,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 }
 #endif
 - (BOOL)hasIncomingCallControllers {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     for (AccountController *anAccountController in [self enabledAccountControllers]) {
         for (CallController *aCallController in [anAccountController callControllers]) {
             if ([[aCallController call] identifier] != kAKSIPUserAgentInvalidIdentifier &&
@@ -178,7 +178,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 }
 
 - (BOOL)hasActiveCallControllers {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     for (AccountController *anAccountController in [self enabledAccountControllers]) {
         for (CallController *aCallController in [anAccountController callControllers]) {
             if ([aCallController isCallActive]) {
@@ -191,7 +191,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 }
 
 - (NSArray *)currentNameservers {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     NSBundle *mainBundle = [NSBundle mainBundle];
     NSString *bundleName = [[mainBundle infoDictionary] objectForKey:@"CFBundleName"];
     
@@ -217,7 +217,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 
 - (NSUInteger)unhandledIncomingCallsCount {
     NSUInteger count = 0;
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     for (AccountController *anAccountController in [self enabledAccountControllers]) {
         for (CallController *aCallController in [anAccountController callControllers]) {
             if ([[aCallController call] isIncoming] && [aCallController isCallUnhandled]) {
@@ -317,7 +317,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
                            selector:@selector(accountSetupControllerDidAddAccount:)
                                name:AKAccountSetupControllerDidAddAccountNotification
                              object:nil];
-#ifdef TARGET_OS_IPHONE
+#if IS_SIP_OBJC
     [notificationCenter addObserver:self
                            selector:@selector(preferencesControllerDidChangeAccountEnabled:)
                                name:AKPreferencesControllerDidChangeAccountEnabledNotification
@@ -352,7 +352,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
                            selector:@selector(authenticationFailureControllerDidChangeUsernameAndPassword:)
                                name:AKAuthenticationFailureControllerDidChangeUsernameAndPasswordNotification
                              object:nil];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     // Subscribe to NSWorkspace notifications about going computer to sleep,
     // waking up from sleep, switching user sesstion in and out.
     notificationCenter = [[NSWorkspace sharedWorkspace] notificationCenter];
@@ -398,20 +398,20 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 }
 
 - (void)dealloc {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     if ([[_preferencesController delegate] isEqual:self]) {
         [_preferencesController setDelegate:nil];
     }
 #endif
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self];
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
 #endif
 }
 
 - (void)stopUserAgent {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     // Force ended state for all calls and remove accounts from the user agent.
     for (AccountController *anAccountController in [self enabledAccountControllers]) {
         for (CallController *aCallController in [anAccountController callControllers]) {
@@ -433,7 +433,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 }
 
 - (void)updateAudioDevices {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     OSStatus err = noErr;
     UInt32 size = 0;
     NSUInteger i = 0;
@@ -558,7 +558,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 //
 // Selects sound IO in the user agent if there are active calls.
 - (void)selectSoundIO {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     NSArray *devices = [self audioDevices];
     NSInteger newSoundInput, newSoundOutput, newRingtoneOutput;
     newSoundInput = newSoundOutput = newRingtoneOutput = NSNotFound;
@@ -627,7 +627,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 - (void)setSelectedSoundIOToUserAgent {
     [[self userAgent] setSoundInputDevice:[self soundInputDeviceIndex] soundOutputDevice:[self soundOutputDeviceIndex]];
 }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 - (IBAction)showPreferencePanel:(id)sender {
     if (![[[self preferencesController] window] isVisible]) {
         [[[self preferencesController] window] center];
@@ -681,7 +681,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 }
 
 - (void)stopRingtoneTimerIfNeeded {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     if (![self hasIncomingCallControllers] && [self ringtoneTimer] != nil) {
         [[self ringtone] stop];
         [[self ringtoneTimer] invalidate];
@@ -691,7 +691,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 }
 
 - (void)ringtoneTimerTick:(NSTimer *)theTimer {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     [[self ringtone] play];
 #endif
 }
@@ -716,14 +716,14 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 }
 
 - (void)requestUserAttentionTick:(NSTimer *)theTimer {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     [NSApp requestUserAttention:NSInformationalRequest];
 #endif
 }
 
 
 - (void)pauseITunes {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     if (![[NSUserDefaults standardUserDefaults] boolForKey:kPauseITunes]) {
         return;
     }
@@ -742,7 +742,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 }
 
 - (void)resumeITunesIfNeeded {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     if (![[NSUserDefaults standardUserDefaults] boolForKey:kPauseITunes]) {
         return;
     }
@@ -764,7 +764,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 }
 
 - (CallController *)callControllerByIdentifier:(NSString *)identifier {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     for (AccountController *anAccountController in [self enabledAccountControllers]) {
         for (CallController *aCallController in [anAccountController callControllers]) {
             if ([[aCallController identifier] isEqualToString:identifier]) {
@@ -777,7 +777,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 }
 
 - (void)updateAccountsMenuItems {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     // Remove old menu items.
     for (NSMenuItem *menuItem in [self accountsMenuItems]) {
         [[self windowMenu] removeItem:menuItem];
@@ -814,7 +814,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
     }
 #endif
 }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 - (IBAction)toggleAccountWindow:(id)sender {
     AccountController *accountController = [sender representedObject];
     if ([[accountController window] isKeyWindow]) {
@@ -832,11 +832,11 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
     } else {
         badgeString = [NSString stringWithFormat:@"%lu", badgeNumber];
     }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     [[NSApp dockTile] setBadgeLabel:badgeString];
 #endif
 }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 - (void)installAddressBookPlugIns {
     NSError *error = nil;
     BOOL installed = [self installAddressBookPlugInsAndReturnError:&error];
@@ -914,7 +914,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 }
 
 - (void)updateCallsShouldDisplayAccountInfo {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     NSUInteger enabledCount = [self.enabledAccountControllers count];
     BOOL shouldDisplay = enabledCount > 1;
     for (AccountController *accountController in self.accountControllers) {
@@ -924,7 +924,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 }
 
 - (void)subscribeToAudioDeviceChanges {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     AudioObjectPropertyAddress address = { kAudioHardwarePropertyDevices,
                                            kAudioObjectPropertyScopeGlobal,
                                            kAudioObjectPropertyElementMaster };
@@ -932,7 +932,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
     AudioObjectAddPropertyListener(kAudioObjectSystemObject, &address, &AudioDevicesChanged, (__bridge void *)self);
 #endif
 }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 - (BOOL)installAddressBookPlugInsAndReturnError:(NSError **)error {
     NSBundle *mainBundle = [NSBundle mainBundle];
     NSString *plugInsPath = [mainBundle builtInPlugInsPath];
@@ -1281,7 +1281,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
     AccountController *theAccountController = [[AccountController alloc] initWithSIPAccount:account];
     
     [theAccountController setAccountDescription:[[theAccountController account] SIPAddress]];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     [[theAccountController window] setExcludedFromWindowsMenu:YES];
 #endif
     [theAccountController setEnabled:YES];
@@ -1289,7 +1289,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
     [[self accountControllers] addObject:theAccountController];
     [self updateCallsShouldDisplayAccountInfo];
     [self updateAccountsMenuItems];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     [[theAccountController window] orderFront:self];
 #endif
     // We need to register accounts with IP address as registrar manually.
@@ -1358,7 +1358,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         account.updatesViaHeader = [accountDict[kUpdateViaHeader] boolValue];
         
         AccountController *theAccountController = [[AccountController alloc] initWithSIPAccount:account];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
         [[theAccountController window] setExcludedFromWindowsMenu:YES];
 #endif
         NSString *description = [accountDict objectForKey:kDescription];
@@ -1374,7 +1374,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         [theAccountController setPlusCharacterSubstitution:[accountDict objectForKey:kPlusCharacterSubstitutionString]];
         
         [[self accountControllers] replaceObjectAtIndex:index withObject:theAccountController];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
         [[theAccountController window] orderFront:nil];
 #endif
         // We need to register accounts with IP address as registrar manually.
@@ -1388,7 +1388,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
     } else {
         AccountController *theAccountController = [[self accountControllers] objectAtIndex:index];
 
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
         // Close all call windows hanging up all calls.
         [[theAccountController callControllers] makeObjectsPerformSelector:@selector(close)];
 #endif
@@ -1399,7 +1399,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         [theAccountController setAttemptingToRegisterAccount:NO];
         [theAccountController setAttemptingToUnregisterAccount:NO];
         [theAccountController setShouldPresentRegistrationError:NO];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
         [[theAccountController window] orderOut:nil];
         
         // Prevent conflict with setFrameAutosaveName: when re-enabling the account.
@@ -1517,7 +1517,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
                 }
             }
         }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
         if ([self shouldPresentUserAgentLaunchError] && [NSApp modalWindow] == nil) {
             // Display application modal alert.
             NSAlert *alert = [[NSAlert alloc] init];
@@ -1536,7 +1536,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 }
 
 - (void)SIPUserAgentDidFinishStopping:(NSNotification *)notification {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     if ([self isTerminating]) {
         [NSApp replyToApplicationShouldTerminate:YES];
         
@@ -1551,7 +1551,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 }
 
 - (void)SIPUserAgentDidDetectNAT:(NSNotification *)notification {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"OK"];
     
@@ -1598,7 +1598,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 #pragma mark NSWindow notifications
 
 - (void)windowWillClose:(NSNotification *)notification {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     // User closed Account Setup window. Terminate application.
     if ([[notification object] isEqual:[[self accountSetupController] window]]) {
         [[NSNotificationCenter defaultCenter] removeObserver:self
@@ -1650,7 +1650,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
     [[self userAgent] setTransportPort:[defaults integerForKey:kTransportPort]];
     [[self userAgent] setTransportPublicHost:[defaults stringForKey:kTransportPublicHost]];
     [[self userAgent] setUsesG711Only:[defaults boolForKey:kUseG711Only]];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     [self setRingtone:[NSSound soundNamed:[defaults stringForKey:kRingingSound]]];
 #endif
     
@@ -1659,7 +1659,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
     // Setup an account on first launch.
     if ([savedAccounts count] == 0) {
         // There are no saved accounts, prompt user to add one.
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
         // Disable Preferences during the first account prompt.
         [[self preferencesMenuItem] setAction:NULL];
 
@@ -1722,7 +1722,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         account.updatesViaHeader = [accountDict[kUpdateViaHeader] boolValue];
         
         AccountController *anAccountController = [[AccountController alloc] initWithSIPAccount:account];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
         [[anAccountController window] setExcludedFromWindowsMenu:YES];
 #endif
         NSString *description = [accountDict objectForKey:kDescription];
@@ -1739,13 +1739,13 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         [[self accountControllers] addObject:anAccountController];
         
         if (![anAccountController isEnabled]) {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
             // Prevent conflict with |setFrameAutosaveName:| when enabling the account.
             [anAccountController setWindow:nil];
 #endif
             continue;
         }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
         if (i == 0) {
             [[anAccountController window] makeKeyAndOrderFront:self];
         } else {
@@ -1755,7 +1755,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         }
 #endif
     }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     // Update callsShouldDisplayAccountInfo on account controllers.
     [self updateCallsShouldDisplayAccountInfo];
     
@@ -1777,7 +1777,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
     [self installDNSChangesCallback];
 #endif
     [self setShouldPresentUserAgentLaunchError:YES];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     // Register as service provider to allow making calls from the Services
     // menu and context menus.
     [NSApp setServicesProvider:self];
@@ -1794,7 +1794,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         }
     }
 }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 // Reopen all account windows when the user clicks the dock icon.
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag {
     
@@ -1829,7 +1829,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
         [self setUserAttentionTimer:nil];
     }
 }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
     if ([self hasActiveCallControllers]) {
         NSAlert *alert = [[NSAlert alloc] init];
@@ -1906,7 +1906,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 #pragma mark AuthenticationFailureController notifications
 
 - (void)authenticationFailureControllerDidChangeUsernameAndPassword:(NSNotification *)notification {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     AccountController *accountController = [[notification object] accountController];
     NSUInteger index = [[self accountControllers] indexOfObject:accountController];
     
@@ -1934,7 +1934,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 }
 
 #pragma mark - NSUserNotificationCenterDelegate
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 - (void)userNotificationCenter:(NSUserNotificationCenter *)center
        didActivateNotification:(NSUserNotification *)notification {
     
@@ -1955,7 +1955,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 #pragma mark -
 #pragma mark GrowlApplicationBridgeDelegate protocol
 
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 - (void)growlNotificationWasClicked:(id)clickContext {
     NSString *identifier = (NSString *)clickContext;
     [self showWindowOfCallControllerWithIdentifier:identifier];
@@ -1968,7 +1968,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 
 #pragma mark -
 #pragma mark NSWorkspace notifications
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 // Disconnects all calls, removes all accounts from the user agent and destroys it before computer goes to sleep.
 - (void)workspaceWillSleep:(NSNotification *)notification {
     if ([[self userAgent] isStarted]) {
@@ -2111,7 +2111,7 @@ static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, 
 #endif
 @end
 
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 #pragma mark -
 
 static OSStatus AudioDevicesChanged(AudioObjectID objectID,
@@ -2159,7 +2159,7 @@ static OSStatus GetAudioDevices(Ptr *devices, UInt16 *deviceCount) {
 }
 #endif
 static void NameserversChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, void *info) {
-#ifndef TARGET_OS_IPHONE //FIXIT
+#if !IS_SIP_OBJC //FIXIT
     id appDelegate = [NSApp delegate];
     NSArray *nameservers = [appDelegate currentNameservers];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];

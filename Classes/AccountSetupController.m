@@ -29,14 +29,14 @@
 //
 
 #import "AccountSetupController.h"
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 #import "AKKeychain.h"
 
 #import "PreferencesController.h"
 #endif
 
 NSString * const AKAccountSetupControllerDidAddAccountNotification = @"AKAccountSetupControllerDidAddAccount";
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 @implementation AccountSetupController
 
 - (id)init {

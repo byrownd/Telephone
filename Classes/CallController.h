@@ -27,13 +27,13 @@
 //  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 #import <Cocoa/Cocoa.h>
 
 #import "XSWindowController.h"
 #endif
 
-#ifdef TARGET_OS_IPHONE
+#if IS_SIP_OBJC
 extern NSString * const kSIPCallCalling;
 extern NSString * const kSIPCallEarly;
 extern NSString * const kSIPCallDidConfirm;
@@ -52,7 +52,7 @@ extern NSString * const kSIPDidHangUpCall;
 // Sent when call window is about to be closed.
 // |accountController| will be subscribed to this notification in its setter.
 extern NSString * const AKCallWindowWillCloseNotification;
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 @class AccountController, AKSIPCall, AKResponsiveProgressIndicator, AKSIPURI;
 @class IncomingCallViewController, ActiveCallViewController;
 @class EndedCallViewController, CallTransferController;
@@ -61,7 +61,7 @@ extern NSString * const AKCallWindowWillCloseNotification;
 #endif
 
 // A call controller.
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 @interface CallController : XSWindowController {
   @protected
     ActiveCallViewController *_activeCallViewController;
@@ -82,7 +82,7 @@ extern NSString * const AKCallWindowWillCloseNotification;
 // Account controller the receiver belongs to.
 @property (nonatomic, weak) AccountController *accountController;
 
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 // Call transfer controller.
 @property (nonatomic, readonly) CallTransferController *callTransferController;
 
@@ -134,7 +134,7 @@ extern NSString * const AKCallWindowWillCloseNotification;
 @property (nonatomic, assign, getter=isCallUnhandled) BOOL callUnhandled;
 
 
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 // Designated initializer.
 // Initializes a CallController object with a given nib file and account controller.
 - (id)initWithWindowNibName:(NSString *)windowNibName accountController:(AccountController *)anAccountController;

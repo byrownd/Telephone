@@ -27,7 +27,7 @@
 //  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 #import <Cocoa/Cocoa.h>
 #endif
 
@@ -107,7 +107,7 @@ extern NSString * const AKPreferencesControllerDidSwapAccountsNotification;
 //
 // Sent when preferences controller changes network settings.
 extern NSString * const AKPreferencesControllerDidChangeNetworkSettingsNotification;
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 @class GeneralPreferencesViewController, AccountPreferencesViewController;
 @class SoundPreferencesViewController, NetworkPreferencesViewController;
 

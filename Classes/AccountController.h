@@ -27,11 +27,11 @@
 //  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-#ifndef TARGET_OS_IPHONE
+#ifndef SIP_OBJC_IOS
 #import <Cocoa/Cocoa.h>
 #endif
 #import "AKSIPAccount.h"
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 #import "XSWindowController.h"
 #endif
 
@@ -58,13 +58,13 @@ extern NSString * const kAccountDidHangUpCall;
 #endif
 
 @class AKSIPURI, AKNetworkReachability;
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 @class ActiveAccountViewController, AuthenticationFailureController;
 #else
 @class AuthenticationFailureController;
 #endif
 @class CallTransferController;
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 // A SIP account controller.
 @interface AccountController : XSWindowController <AKSIPAccountDelegate>
 #else
@@ -114,7 +114,7 @@ extern NSString * const kAccountDidHangUpCall;
 
 // A replacement for the plus character in the phone number.
 @property (nonatomic, copy) NSString *plusCharacterSubstitution;
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 // An active account view controller.
 @property (nonatomic, readonly) ActiveAccountViewController *activeAccountViewController;
 

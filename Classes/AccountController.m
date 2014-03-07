@@ -30,7 +30,7 @@
 
 #import "AccountController.h"
 
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 #import <AddressBook/AddressBook.h>
 #import <Growl/Growl.h>
 
@@ -42,7 +42,7 @@
 #import "AKNetworkReachability.h"
 #import "AKNSString+Scanning.h"
 
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 #import "AKNSWindow+Resizing.h"
 #endif
 
@@ -53,7 +53,7 @@
 #import "AKSIPUserAgent.h"
 #import "AKTelephoneNumberFormatter.h"
 
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 #import "ActiveAccountViewController.h"
 #import "ActiveCallViewController.h"
 #endif
@@ -62,7 +62,7 @@
 #import "AuthenticationFailureController.h"
 
 #import "CallController.h"
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 #import "CallTransferController.h"
 #import "EndedCallViewController.h"
 #import "IncomingCallViewController.h"
@@ -70,7 +70,7 @@
 
 #import "PreferencesController.h"
 
-#ifdef TARGET_OS_IPHONE
+#if IS_SIP_OBJC
 #import "SipManager.h"
 #endif
 
@@ -117,7 +117,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
 @end
 
 @implementation AccountController
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 @synthesize activeAccountViewController = _activeAccountViewController;
 @synthesize authenticationFailureController = _authenticationFailureController;
 #endif
@@ -167,17 +167,17 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
     } else {
         NSString *serviceName = [NSString stringWithFormat:@"SIP: %@",
                                  [[self account] registrar]];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
         NSString *password = [AKKeychain passwordForServiceName:serviceName accountName:[[self account] username]];
 #else
         NSString *password = nil; // FIXIT
-#ifdef SIP_OBJC
+#if IS_SIP_OBJC
         NSString *sipName = [NSString stringWithFormat:@"%@@%@", self.account.username, self.account.registrar];
         password = [[NSUserDefaults standardUserDefaults] objectForKey:sipName];
 #endif
 #endif
         [self showConnectingState];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
         BOOL accountAdded = [[[NSApp delegate] userAgent] addAccount:[self account] withPassword:password];
 #else
         BOOL accountAdded = [[[SipManager sharedManager].sipController userAgent] addAccount:[self account] withPassword:password];
@@ -187,7 +187,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
         if (accountAdded &&
             ![self isAccountRegistered] &&
             [[self account] registrationExpireTime] < 0 &&
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
             [[[NSApp delegate] userAgent] isStarted]) {
 #else
             [[[SipManager sharedManager].sipController userAgent] isStarted]) {
@@ -210,7 +210,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
                 NSString *statusText;
                 NSString *preferredLocalization = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
                 if ([preferredLocalization isEqualToString:@"Russian"]) {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
                     statusText = [[NSApp delegate] localizedStringForSIPResponseCode:
                                   [[self account] registrationStatus]];
 #else
@@ -243,13 +243,13 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
 
 - (void)setAccountDescription:(NSString *)accountDescription {
     if (_accountDescription != accountDescription) {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
         [[self window] setTitle:accountDescription];
 #endif
         _accountDescription = accountDescription;
     }
 }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
 - (ActiveAccountViewController *)activeAccountViewController {
     if (_activeAccountViewController == nil) {
         _activeAccountViewController = [[ActiveAccountViewController alloc] initWithAccountController:self
@@ -268,7 +268,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
 }
 #endif
 - (id)initWithSIPAccount:(AKSIPAccount *)anAccount {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     self = [super initWithWindowNibName:@"Account"];
 #else
     self = [super init];
@@ -288,7 +288,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
     [self setShouldMakeCall:NO];
     
     [[self account] setDelegate:self];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     [[self window] setTitle:[[self account] SIPAddress]];
 #endif
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -300,7 +300,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
 }
 
 - (void)dealloc {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     for (CallController *aCallController in [self callControllers]) {
         [aCallController close];
     }
@@ -310,7 +310,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
     }
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     // Close authentication failure sheet if it's raised.
     [[_authenticationFailureController cancelButton] performClick:nil];
 #endif
@@ -321,7 +321,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
 }
 
 - (void)awakeFromNib {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     [self setShouldCascadeWindows:NO];
     [[self window] setFrameAutosaveName:[[self account] SIPAddress]];
 #endif
@@ -336,7 +336,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
     }
     
     [self showOfflineState];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     [[[NSApp delegate] userAgent] removeAccount:[self account]];
 #else
     [[[SipManager sharedManager].sipController userAgent] removeAccount:[self account]];
@@ -347,7 +347,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
         phoneLabel:(NSString *)phoneLabel
         callTransferController:(CallTransferController *)callTransferController {
 
-#ifdef TARGET_OS_IPHONE
+#if IS_SIP_OBJC
     [[NSNotificationCenter defaultCenter] postNotificationName:kAccountWillCreateSIPCallOut object:self];
 #endif
             
@@ -376,7 +376,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
 
     // If it's a regular call, not a transfer, create the new CallController.
     CallController *aCallController; //FIXIT
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     if (callTransferController == nil) {
         aCallController = [[CallController alloc] initWithWindowNibName:@"Call" accountController:self];
     } else {
@@ -398,7 +398,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
 
     // Set title.
     if ([[destinationURI host] length] > 0) {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
         [[aCallController window] setTitle:[destinationURI SIPAddress]];
 #else
         aCallController.title = [destinationURI SIPAddress];
@@ -406,14 +406,14 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
         
     } else if (![enteredCallDestinationString ak_hasLetters]) {
         if ([enteredCallDestinationString ak_isTelephoneNumber] && [defaults boolForKey:kFormatTelephoneNumbers]) {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
             [[aCallController window] setTitle:
              [telephoneNumberFormatter stringForObjectValue:enteredCallDestinationString]];
 #else
             aCallController.title = [telephoneNumberFormatter stringForObjectValue:enteredCallDestinationString];
 #endif
         } else {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
             [[aCallController window] setTitle:enteredCallDestinationString];
 #else
             aCallController.title = enteredCallDestinationString;
@@ -422,13 +422,13 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
     } else {
         NSString *SIPAddress = [NSString stringWithFormat:@"%@@%@",
                                 [destinationURI user], [[[self account] registrationURI] host]];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
         [[aCallController window] setTitle:SIPAddress];
 #else
         aCallController.title = SIPAddress;
 #endif
     }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     // Set displayed name.
     if ([[destinationURI displayName] length] > 0) {
         [aCallController setDisplayedName:[destinationURI displayName]];
@@ -455,7 +455,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
     if ([[destinationURI host] length] == 0) {
         [destinationURI setHost:[[[self account] registrationURI] host]];
     }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     // Set URI for redial.
     [aCallController setRedialURI:destinationURI];
     
@@ -472,7 +472,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
     } else {
         [aCallController setStatus:NSLocalizedString(@"calling...", @"Outgoing call in progress.")];
     }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     if (callTransferController == nil) {
         [aCallController showWindow:self];
     }
@@ -483,7 +483,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
         [aCallController setCall:aCall];
         [aCallController setCallActive:YES];
     } else {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
         [aCallController removeObjectFromViewControllersAtIndex:0];
         [aCallController addViewController:[aCallController endedCallViewController]];
         [aCallController setCallInfoViewResizingWindow:[[aCallController endedCallViewController] view]];
@@ -491,7 +491,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
         [aCallController setStatus:NSLocalizedString(@"Call Failed", @"Call failed.")];
     }
             
-#ifdef TARGET_OS_IPHONE
+#if IS_SIP_OBJC
     [[NSNotificationCenter defaultCenter] postNotificationName:kAccountDidCreateSIPCallOut object:self];
 #endif
 }
@@ -530,7 +530,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
 }
 
 - (void)showRegistrarConnectionErrorSheetWithError:(NSString *)error {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"OK"];
     [alert setMessageText:[NSString stringWithFormat:
@@ -556,7 +556,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
 #ifdef SIP_OBJC
     [[NSNotificationCenter defaultCenter] postNotificationName:kAccountSIPAvailable object:self];
 #endif
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     NSSize buttonSize = [[self accountStatePopUp] frame].size;
     
     NSString *preferredLocalization = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
@@ -590,7 +590,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
 #ifdef SIP_OBJC
     [[NSNotificationCenter defaultCenter] postNotificationName:kAccountSIPUnavailable object:self];
 #endif
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     NSSize buttonSize = [[self accountStatePopUp] frame].size;
     
     NSString *preferredLocalization = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
@@ -625,7 +625,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
 #ifdef SIP_OBJC
     [[NSNotificationCenter defaultCenter] postNotificationName:kAccountSIPOffline object:self];
 #endif
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     NSSize buttonSize = [[self accountStatePopUp] frame].size;
     
     NSString *preferredLocalization = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
@@ -654,7 +654,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
 }
 
 - (void)showConnectingState {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     NSSize buttonSize = [[self accountStatePopUp] frame].size;
     
     NSString *preferredLocalization = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
@@ -685,7 +685,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
     if ([[uri user] length] == 0) {
         return;
     }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     [[[self activeAccountViewController] callDestinationField] setTokenStyle:NSPlainTextTokenStyle];
 #endif
     NSString *theString;
@@ -694,7 +694,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
     } else {
         theString = [uri user];
     }
-#ifndef TARGET_OS_IPHONE //FIXIT
+#if !IS_SIP_OBJC //FIXIT
     [[[self activeAccountViewController] callDestinationField] setStringValue:theString];
     
     [[self activeAccountViewController] makeCall:nil];
@@ -711,7 +711,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
 
 - (BOOL)windowShouldClose:(id)sender {
     BOOL result = YES;
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     if (sender == [self window]) {
         [[self window] orderOut:self];
         result = NO;
@@ -750,19 +750,19 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
             
             // The user could initiate a call from the Address Book plug-in.
             if ([self shouldMakeCall]) {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
                 // Explicitly display registered mode before calling.
                 [[self window] display];
 #endif
                 [self setShouldMakeCall:NO];
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
                 [[self activeAccountViewController] makeCall:nil];
 #endif
             }
             
             // The user could click a URL.
             if ([self catchedURLString] != nil) {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
                 // Explicitly display registered mode before calling.
                 [[self window] display];
 #endif
@@ -776,7 +776,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
         
         // Handle authentication failure
         if ([[self account] registrationStatus] == PJSIP_EFAILEDCREDENTIAL) {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
             [[[self authenticationFailureController] informativeText] setStringValue:
              [NSString stringWithFormat:
               NSLocalizedString(@"Telephone was unable to login to %@. "
@@ -803,7 +803,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
             // Raise a sheet if connection to the registrar failed. If last registration status is 2xx and expiration
             // interval is less than zero, it is unregistration, not failure. Condition of failure is: last registration
             // status != 2xx AND expiration interval < 0.
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
             if ([[[NSApp delegate] userAgent] isStarted]) {
 #else
             if ([[[SipManager sharedManager].sipController userAgent] isStarted]) {
@@ -812,7 +812,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
                     NSString *statusText;
                     NSString *preferredLocalization = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
                     if ([preferredLocalization isEqualToString:@"Russian"]) {
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
                         statusText = [[NSApp delegate] localizedStringForSIPResponseCode:
                                       [[self account] registrationStatus]];
 #else
@@ -895,7 +895,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
             }
         }
     }
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     [[NSApp delegate] pauseITunes];
     
     CallController *aCallController = [[CallController alloc] initWithWindowNibName:@"Call" accountController:self];
@@ -923,7 +923,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
     AKSIPURI *finalRedialURI = [aCall remoteURI];
     
     // Search Address Book for caller's name.
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     ABAddressBook *AB = [ABAddressBook sharedAddressBook];
     NSArray *records = nil;
     
@@ -1149,7 +1149,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
                                  "the same, if possible.");
     }
 #endif
-#ifndef TARGET_OS_IPHONE
+#if !IS_SIP_OBJC
     NSUserNotification *userNotification = [[NSUserNotification alloc] init];
     userNotification.title = notificationTitle;
     userNotification.informativeText = notificationDescription;
@@ -1176,7 +1176,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
 #endif
     [aCall sendRingingNotification];
     
-#ifdef TARGET_OS_IPHONE
+#if IS_SIP_OBJC
     [[NSNotificationCenter defaultCenter] postNotificationName:kAccountWillCreateSIPCallIn object:self];
 #endif
 }
