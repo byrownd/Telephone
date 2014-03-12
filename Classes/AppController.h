@@ -27,6 +27,11 @@
 //  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
+
+#ifndef IS_SIP_OBJC
+#import <Cocoa/Cocoa.h>
+#endif
+
 #if !SIP_OBJC_IOS
 #import <Cocoa/Cocoa.h>
 #endif
@@ -124,13 +129,15 @@ extern NSString * const kGrowlNotificationCallEnded;
 
 // Accounts menu items to show in windows menu.
 @property (nonatomic, strong) NSArray *accountsMenuItems;
-#if !IS_SIP_OBJC
+
+#ifndef IS_SIP_OBJC
 // Application Window menu.
 @property (nonatomic, weak) IBOutlet NSMenu *windowMenu;
 
 // Preferences menu item outlet.
 @property (nonatomic, weak) IBOutlet NSMenuItem *preferencesMenuItem;
 #endif
+
 // Stops and destroys SIP user agent hanging up all calls and unregistering all accounts.
 - (void)stopUserAgent;
 

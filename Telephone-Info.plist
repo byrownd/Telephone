@@ -9,7 +9,7 @@
 	<key>CFBundleIconFile</key>
 	<string>Telephone</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.tlphn.Telephone</string>
+	<string>net.ipport.com.tlphn.Telephone</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
