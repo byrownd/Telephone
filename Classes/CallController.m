@@ -63,6 +63,7 @@
 #import "PreferencesController.h"
 
 #if IS_SIP_OBJC
+#import "SipManager.h"
 NSString * const kSIPCallCalling                    = @"SIPCallCalling";
 NSString * const kSIPCallEarly                      = @"SIPCallEarly";
 NSString * const kSIPCallDidConfirm                 = @"SIPCallDidConfirm";
@@ -269,6 +270,9 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
 
 - (void)acceptCall {
     if ([[self call] isIncoming]) {
+#if SIP_OBJC_MAC || !defined(IS_SIP_OBJC)
+        [[SipManager sharedManager].sipController stopRingtoneTimerIfNeeded];
+#endif
 #if !IS_SIP_OBJC
         [[NSApp delegate] stopRingtoneTimerIfNeeded];
 #endif
@@ -294,6 +298,9 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
     }
 #endif
     if ([[self call] isIncoming]) {
+#if SIP_OBJC_MAC || !defined(IS_SIP_OBJC)
+        [[SipManager sharedManager].sipController stopRingtoneTimerIfNeeded];
+#endif
 #if !IS_SIP_OBJC
         [[NSApp delegate] stopRingtoneTimerIfNeeded];
 #endif
@@ -506,6 +513,9 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
         [[self activeCallViewController] stopCallTimer];
 #endif
         if ([[self call] isIncoming]) {
+#if SIP_OBJC_MAC || !defined(IS_SIP_OBJC)
+            [[SipManager sharedManager].sipController stopRingtoneTimerIfNeeded];
+#endif
 #if !IS_SIP_OBJC
             [[NSApp delegate] stopRingtoneTimerIfNeeded];
 #endif
@@ -618,6 +628,9 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
 #endif
     
     if ([[notification object] isIncoming]) {
+#if SIP_OBJC_MAC || !defined(IS_SIP_OBJC)
+        [[SipManager sharedManager].sipController stopRingtoneTimerIfNeeded];
+#endif
 #if !IS_SIP_OBJC
         [[NSApp delegate] stopRingtoneTimerIfNeeded];
 #endif
@@ -664,6 +677,10 @@ static const NSTimeInterval kRedialButtonReenableTime = 1.0;
 #endif
     
     if ([[notification object] isIncoming]) {
+#if SIP_OBJC_MAC || !defined(IS_SIP_OBJC)
+        [[SipManager sharedManager].sipController stopRingtoneTimerIfNeeded];
+        [[SipManager sharedManager].sipController stopUserAttentionTimerIfNeeded];
+#endif
 #if !IS_SIP_OBJC
         [[NSApp delegate] stopRingtoneTimerIfNeeded];
         [[NSApp delegate] stopUserAttentionTimerIfNeeded];

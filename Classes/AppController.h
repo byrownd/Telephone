@@ -89,7 +89,7 @@ extern NSString * const kGrowlNotificationCallEnded;
 // A Boolean value indicating whether user agent sound IO should be set as soon
 // as needed, e.g. on the next call.
 @property (nonatomic, assign) BOOL shouldSetUserAgentSoundIO;
-#if !SIP_OBJC_IOS
+#if SIP_OBJC_MAC || !defined(IS_SIP_OBJC)
 // Incoming call ringtone.
 @property (nonatomic, strong) NSSound *ringtone;
 #endif

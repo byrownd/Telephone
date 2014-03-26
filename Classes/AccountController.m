@@ -1149,6 +1149,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
                                  "the same, if possible.");
     }
 #endif
+
 #if !IS_SIP_OBJC
     NSUserNotification *userNotification = [[NSUserNotification alloc] init];
     userNotification.title = notificationTitle;
@@ -1165,15 +1166,25 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
                                        isSticky:NO
                                    clickContext:[aCallController identifier]];
     }
-    
+#endif
+#if SIP_OBJC_MAC || !defined(IS_SIP_OBJC)
+    [[[SipManager sharedManager].sipController ringtone] play];
+    [[SipManager sharedManager].sipController startRingtoneTimer];
+#endif
+#if !IS_SIP_OBJC
     [[[NSApp delegate] ringtone] play];
     [[NSApp delegate] startRingtoneTimer];
+#endif
     
     if (![NSApp isActive]) {
         [NSApp requestUserAttention:NSInformationalRequest];
-        [[NSApp delegate] startUserAttentionTimer];
-    }
+#if SIP_OBJC_MAC || !defined(IS_SIP_OBJC)
+        [[SipManager sharedManager].sipController startUserAttentionTimer];
 #endif
+#if !IS_SIP_OBJC
+        [[NSApp delegate] startUserAttentionTimer];
+#endif
+    }
     [aCall sendRingingNotification];
     
 #if IS_SIP_OBJC
