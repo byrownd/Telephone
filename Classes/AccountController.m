@@ -1188,7 +1188,7 @@ NSString * const kAccountDidCreateSIPCallIn = @"AccountDidCreateSIPCallIn";
     [aCall sendRingingNotification];
     
 #if IS_SIP_OBJC
-    [[NSNotificationCenter defaultCenter] postNotificationName:kAccountWillCreateSIPCallIn object:self];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kAccountWillCreateSIPCallIn object:aCallController];
 #endif
 }
 
